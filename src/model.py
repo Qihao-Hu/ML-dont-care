@@ -57,6 +57,7 @@ class LevelizedModel(nn.Module):
             node_vals[i] = input_bits[:, i].float() * 2.0 - 1.0 # map 0->-1,1->+1
         softmax_b = []
         argmax_idx = []
+        node_ab_values = {}  # Store ap0, ap1, bp0, bp1 for each node
         param_idx = 0
         # iterate layers
         for level_nodes in self.layers:
@@ -104,6 +105,14 @@ class LevelizedModel(nn.Module):
                 softmax_b.append((softmax_w0, softmax_w1))
                 argmax_idx.append((argmax_w0, argmax_w1))
                 
+                # Store ap0, ap1, bp0, bp1 values for this node
+                node_ab_values[node] = {
+                    'ap0': ap0,
+                    'ap1': ap1,
+                    'bp0': bp0,
+                    'bp1': bp1
+                }
+                
                 # Use ap0 and ap1 as the two fanins for the AND gate (according to paper)
                 in0 = ap0  # First fanin: argmax selection from ωp,0
                 in1 = ap1  # Second fanin: argmax selection from ωp,1
@@ -111,6 +120,10 @@ class LevelizedModel(nn.Module):
                 # AND in ±1 domain: +1 if both +1 else -1
                 out = torch.where((in0 > 0) & (in1 > 0), torch.tensor(1.0, device=device), torch.tensor(-1.0, device=device))
                 node_vals[node] = out
+                
+                # Update the stored values to include output
+                node_ab_values[node]['out'] = out
+                
                 param_idx += 1
         # build outputs
         outputs = []
@@ -129,7 +142,7 @@ class LevelizedModel(nn.Module):
             
         # map back to {0,1}
         outputs01 = (outputs > 0).long()
-        return outputs01, softmax_b, argmax_idx
+        return node_ab_values
     
     def export_selection_info(self):
         """Export the argmax indices for ap0 and ap1 per node, following paper specification"""
