@@ -186,44 +186,85 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8):
     loss = loss / float(B)
     return loss
 
-if __name__ == "__main__":
-    model = LevelizedModel(n_inputs=8, layers_config=[10, 10, 10, 10, 8])
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1, betas=(0.9, 0.999), eps=1e-8)
-    # # Test case: 3 * 5
-    # input_bits = torch.tensor([[1, 1, 0, 0, 1, 0, 1, 0]], dtype=torch.float32)
-    # node_ab_values = model(input_bits)
-
-    # output_bits = torch.tensor([[1, 1, 1, 1, 0, 0, 0, 0]], dtype=torch.float32)  # 15 in binary
+def load_data(file_path):
+    """Load input-output pairs from the data file"""
+    inputs = []
+    outputs = []
     
-    # backprop_dc(model, node_ab_values, output_bits)
-    for step in range(1000):
-        input_bits = torch.tensor([[1, 1, 0, 0, 1, 0, 1, 0]], dtype=torch.float32)
-        node_ab_values = model(input_bits)
-        output_bits = torch.tensor([[1, 1, 1, 1, 0, 0, 0, 0]], dtype=torch.float32)
+    with open(file_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                # Parse "Inputs=[...] Outputs=[...]"
+                input_part = line.split('Outputs=')[0].strip()
+                output_part = line.split('Outputs=')[1].split('#')[0].strip()
+                
+                # Extract the list parts
+                input_str = input_part.replace('Inputs=', '').strip('[]')
+                output_str = output_part.strip('[]')
+                
+                # Convert to lists of integers
+                input_bits = [int(x) for x in input_str.split(',')]
+                output_bits = [int(x) for x in output_str.split(',')]
+                
+                inputs.append(input_bits)
+                outputs.append(output_bits)
+    
+    return torch.tensor(inputs, dtype=torch.float32), torch.tensor(outputs, dtype=torch.float32)
 
-        # --- Calculate loss ---
-        loss = backprop_dc(model, node_ab_values, output_bits)
+if __name__ == "__main__":
+    model = LevelizedModel(n_inputs=8, layers_config=[20, 20, 20, 20, 20, 20, 20, 8])
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.1, betas=(0, 0.9), eps=1e-8)
+    
+    # Load data from file
+    data_file = "../dataset/4bit_ Multiplier.txt"
+    input_data, output_data = load_data(data_file)
+    
+    print(f"Loaded {len(input_data)} training samples")
+    
+    # Open results file in append mode
+    with open("results.txt", "a") as f:
+        f.write(f"\n=== Training Session Started ===\n")
+        f.write(f"Training samples: {len(input_data)}\n")
+        
+        for step in range(10000):
+            # Use all training samples (batch training)
+            node_ab_values = model(input_data)
 
-        # --- Adam update ---
-        optimizer.zero_grad()
-        loss.backward()   # Automatically compute gradients for param_w0, param_w1
-        optimizer.step()
+            # --- Calculate loss ---
+            loss = backprop_dc(model, node_ab_values, output_data)
 
-        print(f"Step {step:03d} | Loss = {loss.item():.4f}")
+            # --- Adam update ---
+            optimizer.zero_grad()
+            loss.backward()   # Automatically compute gradients for param_w0, param_w1
+            optimizer.step()
+
+            # Write to file instead of printing
+            if step % 10 == 0:  # Write every 10 steps to reduce file size
+                f.write(f"Step {step:03d} | Loss = {loss.item():.4f}\n")
+                f.flush()  # Ensure immediate writing to file
+    print("Training completed.")
 
     model.eval()
     with torch.no_grad():
-        # Run forward again to get node_ab_values
-        input_bits = torch.tensor([[1, 1, 0, 0, 1, 0, 1, 0]], dtype=torch.float32)
-        node_ab_values = model(input_bits)
+        # Test on all training data
+        node_ab_values = model(input_data)
 
         # Get the outputs of the model's last layer
         outputs = []
         for q in model.layers[-1]:
             outputs.append(node_ab_values[q]["out"])  # Value of each output node
-        outputs = torch.stack(outputs, dim=1)  # [1, num_outputs]
+        outputs = torch.stack(outputs, dim=1)  # [batch_size, num_outputs]
 
         # Convert continuous values to 0/1 (binarize)
         pred_bits = (outputs > 0).int()
-        print("Predicted Result:", pred_bits.tolist())
+        
+        # Write final results to file
+        with open("results.txt", "a") as f:
+            f.write("=== Final Test Results ===\n")
+            for i in range(len(input_data)):
+                f.write(f"Input: {input_data[i].int().tolist()}, "
+                       f"Expected: {output_data[i].int().tolist()}, "
+                       f"Predicted: {pred_bits[i].tolist()}\n")
+            f.write("=== Training Session Completed ===\n\n")
+    print("Test completed.")
