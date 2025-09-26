@@ -28,108 +28,6 @@ def count_nodes_in_layers_before(model, node_p):
             total_nodes += len(model.layers[layer_idx])
     return total_nodes
 
-# def backprop_dc(model, node_ab_values, output_bits):
-    max_node_id = model.n_inputs - 1
-    for layer in model.layers:
-        max_node_id = max(max_node_id, max(layer))
-    m = torch.zeros(max_node_id + 1, max_node_id + 1, 2, 2)
-    t = torch.zeros(max_node_id + 1)
-    g = torch.zeros(max_node_id + 1)
-    f = torch.zeros(max_node_id + 1, 2)
-    loss = torch.tensor(0.0, device=f.device)
-
-    # ---- Initialize f for output layer using provided output_bits ----
-    # output_bits expected shape: (num_outputs,) or (1, num_outputs)
-    if output_bits.dim() == 2:
-        if output_bits.size(0) != 1:
-            raise ValueError("Batch size > 1 not supported here")
-        output_bits_flat = output_bits[0]
-    else:
-        output_bits_flat = output_bits
-    output_layer = model.layers[-1]
-    assert len(output_layer) == output_bits_flat.numel(), \
-        f"Length mismatch: output layer has {len(output_layer)} nodes but got {output_bits_flat.numel()} labels"
-    # Map {0,1} -> {-1,1} by 2*x - 1, assign to both channels
-    transformed = output_bits_flat * 2 - 1
-    f[output_layer, 0] = transformed
-    f[output_layer, 1] = transformed
-    # ------------------------------------------------------------------
-
-    for layer_idx in range(len(model.layers)-2, -1, -1):
-        layer_nodes = model.layers[layer_idx]
-        layer_num = layer_idx + 1
-        # print(f"Layer{layer_num}: {layer_nodes}")
-
-        if layer_num == len(model.layers) - 1:
-            for p in layer_nodes:
-                for q in model.layers[-1]:
-                    # print(p,q)
-                    # print(model.param_w0[q - model.n_inputs])
-                    # print(count_nodes_in_layers_before(model, q))
-                    m[p, q, 0, 0] = model.param_w0[q - model.n_inputs][p]
-                    m[p, q, 0, 1] = model.param_w0[q - model.n_inputs][p + count_nodes_in_layers_before(model, q)]
-                    # m[p, q, 1, 0] = model.param_w1[q - model.n_inputs][p]
-                    # m[p, q, 1, 1] = model.param_w1[q - model.n_inputs][p + count_nodes_in_layers_before(model, q)]
-                    
-                    t[p] += m[p, q, 0, 0] + m[p, q, 0, 1]
-
-                    g[p] += (m[p, q, 0, 0] / t[p]) * f[q, 0]
-
-
-                if (g[p] < 0 or node_ab_values[p]['ap0'] == 1) and (node_ab_values[p]['ap1'] == -1):
-                    f[p, 0] = 0
-                elif (g[p] > 0 or node_ab_values[p]['ap1'] == 1) and (node_ab_values[p]['ap0'] == -1):
-                    f[p, 1] = 0
-                else:
-                    f[p, 0] = g[p]
-                    f[p, 1] = g[p]
-
-
-                for prev_layer_idx in range(layer_idx):
-                    for r in model.layers[prev_layer_idx]:
-                        m[r, p, 0, 0] = t[p] * model.param_w0[p - model.n_inputs][r]
-                        m[r, p, 0, 1] = t[p] * model.param_w0[p - model.n_inputs][r + count_nodes_in_layers_before(model, p)]
-                        m[r, p, 1, 0] = t[p] * model.param_w1[p - model.n_inputs][r]
-                        m[r, p, 1, 1] = t[p] * model.param_w1[p - model.n_inputs][r + count_nodes_in_layers_before(model, p)]
-                
-                
-                loss = loss + torch.abs(f[p, 0]) * ((node_ab_values[p]['bp0'] - sign(f[p, 0])) ** 2) \
-             + torch.abs(f[p, 1]) * ((node_ab_values[p]['bp1'] - sign(f[p, 1])) ** 2)
-
-                        
-        else:
-            for p in layer_nodes:
-                for q in model.layers[layer_idx + 1]:
-                    m[p, q, 0, 0] = model.param_w0[q - model.n_inputs][p]
-                    m[p, q, 0, 1] = model.param_w0[q - model.n_inputs][p + count_nodes_in_layers_before(model, q)]
-                    m[p, q, 1, 0] = model.param_w1[q - model.n_inputs][p]
-                    m[p, q, 1, 1] = model.param_w1[q - model.n_inputs][p + count_nodes_in_layers_before(model, q)]
-                    
-                    t[p] += m[p, q, 0, 0] + m[p, q, 0, 1]
-
-                    g[p] += (m[p, q, 0, 0] / t[p]) * f[q, 0] + (m[p, q, 1, 0] / t[p]) * (- f[q, 1])
-
-                if (g[p] < 0 or node_ab_values[p]['ap0'] == 1) and (node_ab_values[p]['ap1'] == -1):
-                    f[p, 0] = 0
-                elif (g[p] > 0 or node_ab_values[p]['ap1'] == 1) and (node_ab_values[p]['ap0'] == -1):
-                    f[p, 1] = 0
-                else:
-                    f[p, 0] = g[p]
-                    f[p, 1] = g[p]
-
-                for prev_layer_idx in range(layer_idx):
-                    for r in model.layers[prev_layer_idx]:
-                        m[r, p, 0, 0] = t[p] * model.param_w0[p - model.n_inputs][r]
-                        m[r, p, 0, 1] = t[p] * model.param_w0[p - model.n_inputs][r + count_nodes_in_layers_before(model, p)]
-                        m[r, p, 1, 0] = t[p] * model.param_w1[p - model.n_inputs][r]
-                        m[r, p, 1, 1] = t[p] * model.param_w1[p - model.n_inputs][r + count_nodes_in_layers_before(model, p)]
-
-                loss = loss + torch.abs(f[p, 0]) * ((node_ab_values[p]['bp0'] - sign(f[p, 0])) ** 2) \
-             + torch.abs(f[p, 1]) * ((node_ab_values[p]['bp1'] - sign(f[p, 1])) ** 2)
-
-
-    return loss
-
 def backprop_dc(model, node_ab_values, output_bits, eps=1e-8):
     """
     Compute loss using don't-care backprop logic (batch-aware, autograd-friendly).
@@ -185,7 +83,7 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8):
     # traverse layers backwards (excluding the output layer which is set)
     for layer_idx in range(len(model.layers) - 2, -1, -1):
         layer_nodes = model.layers[layer_idx]
-        next_layer = model.layers[layer_idx + 1]
+        layer_num = layer_idx + 1
 
         for p in layer_nodes:
             # t_p is scalar (accumulate weights for node p)
@@ -193,38 +91,52 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8):
             # g_p is per-batch
             g_p = torch.zeros(B, device=device)
 
-            # accumulate contributions from nodes q in next_layer
-            for q in next_layer:
-                row_idx = q - n_inputs
-                w0_row = model.param_w0[row_idx]  # shape [2 * M_i]
-                # safe: param_w1 exists as well (you created both)
-                w1_row = model.param_w1[row_idx]
+            if layer_num == len(model.layers) - 1:
+                # Special handling matching the non-comment backprop_dc for last-1 layer
+                for next_layer_idx in range(layer_idx + 1, len(model.layers)):
+                    for q in model.layers[next_layer_idx]:
+                        row_idx = q - n_inputs
+                        w0_row = model.param_w0[row_idx]
+                        w1_row = model.param_w1[row_idx]
 
-                # index offsets for this candidate p relative to q's candidate list
-                idx0 = p
-                idx1 = p + count_nodes_in_layers_before(model, q)
+                        idx0 = p
+                        idx1 = p + count_nodes_in_layers_before(model, q)
 
-                # scalar weights (these are torch scalar tensors that require grad)
-                m00 = w0_row[idx0]
-                m01 = w0_row[idx1]
-                m10 = w1_row[idx0]
-                m11 = w1_row[idx1]
+                        m00 = w0_row[idx0]
+                        m01 = w0_row[idx1]
 
-                # accumulate scalar t_p (same across batch)
-                t_p = t_p + (m00 + m01)
+                        # accumulate only m00+m01 for t_p
+                        t_p = t_p + (m00 + m01)
+                        t_p_safe = t_p if (t_p.abs() > eps).item() else (t_p + eps)
 
-                # avoid division by zero later; use t_p_safe
-                # note: t_p is scalar; we use it for dividing scalar weights
-                t_p_safe = t_p if (t_p.abs() > eps).item() else (t_p + eps)
+                        fq0 = f[q][:, 0]
+                        # g[p] += (m00/t[p]) * f[q,0] + (m01/t[p]) * (- f[q,0])
+                        g_p = g_p + (m00 / t_p_safe) * fq0 + (m01 / t_p_safe) * (-fq0)
+            else:
+                # General case matching the non-comment backprop_dc
+                for next_layer_idx in range(layer_idx + 1, len(model.layers)):
+                    for q in model.layers[next_layer_idx]:
+                        row_idx = q - n_inputs
+                        w0_row = model.param_w0[row_idx]
+                        w1_row = model.param_w1[row_idx]
 
-                # use f[q] which is [B,2]
-                fq0 = f[q][:, 0]  # [B]
-                fq1 = f[q][:, 1]  # [B]
+                        idx0 = p
+                        idx1 = p + count_nodes_in_layers_before(model, q)
 
-                # The two formulas in your original code differ for "last-to-output" special case,
-                # but we follow the more general formulation:
-                # g[p] += (m00/t_p)*f[q,0] + (m10/t_p)*(- f[q,1])
-                g_p = g_p + (m00 / t_p_safe) * fq0 + (m10 / t_p_safe) * (-fq1)
+                        m00 = w0_row[idx0]
+                        m01 = w0_row[idx1]
+                        m10 = w1_row[idx0]
+                        m11 = w1_row[idx1]
+
+                        # accumulate all four into t_p
+                        t_p = t_p + (m00 + m01 + m10 + m11)
+                        t_p_safe = t_p if (t_p.abs() > eps).item() else (t_p + eps)
+
+                        fq0 = f[q][:, 0]
+                        fq1 = f[q][:, 1]
+                        # g[p] += (m00/t)*f[q,0] + (m10/t)*f[q,1] + (m01/t)*(- f[q,0]) + (m11/t)*(- f[q,1])
+                        g_p = g_p + (m00 / t_p_safe) * fq0 + (m10 / t_p_safe) * fq1 \
+                                   + (m01 / t_p_safe) * (-fq0) + (m11 / t_p_safe) * (-fq1)
 
             # now set f[p] according to your rules, but do it elementwise for batch
             # node_ab_values[p]['ap0'] and ['ap1'] are tensors [B]
@@ -275,9 +187,9 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8):
     return loss
 
 if __name__ == "__main__":
-    model = LevelizedModel(n_inputs=8, layers_config=[4, 6, 8])
+    model = LevelizedModel(n_inputs=8, layers_config=[10, 10, 10, 10, 8])
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1, betas=(0, 0.9), eps = 1e-8)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.1, betas=(0.9, 0.999), eps=1e-8)
     # # Test case: 3 * 5
     # input_bits = torch.tensor([[1, 1, 0, 0, 1, 0, 1, 0]], dtype=torch.float32)
     # node_ab_values = model(input_bits)
@@ -285,7 +197,7 @@ if __name__ == "__main__":
     # output_bits = torch.tensor([[1, 1, 1, 1, 0, 0, 0, 0]], dtype=torch.float32)  # 15 in binary
     
     # backprop_dc(model, node_ab_values, output_bits)
-    for step in range(100):
+    for step in range(1000):
         input_bits = torch.tensor([[1, 1, 0, 0, 1, 0, 1, 0]], dtype=torch.float32)
         node_ab_values = model(input_bits)
         output_bits = torch.tensor([[1, 1, 1, 1, 0, 0, 0, 0]], dtype=torch.float32)
@@ -299,3 +211,19 @@ if __name__ == "__main__":
         optimizer.step()
 
         print(f"Step {step:03d} | Loss = {loss.item():.4f}")
+
+    model.eval()
+    with torch.no_grad():
+        # 再跑一次 forward 得到 node_ab_values
+        input_bits = torch.tensor([[1, 1, 0, 0, 1, 0, 1, 0]], dtype=torch.float32)
+        node_ab_values = model(input_bits)
+
+        # 得到模型最后一层的输出
+        outputs = []
+        for q in model.layers[-1]:
+            outputs.append(node_ab_values[q]["out"])  # 每个输出节点的值
+        outputs = torch.stack(outputs, dim=1)  # [1, num_outputs]
+
+        # 把连续值转成 0/1（二值化）
+        pred_bits = (outputs > 0).int()
+        print("预测结果:", pred_bits.tolist())

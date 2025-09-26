@@ -144,15 +144,3 @@ class LevelizedModel(nn.Module):
         outputs01 = (outputs > 0).long()
         return node_ab_values
     
-    def export_selection_info(self):
-        """Export the argmax indices for ap0 and ap1 per node, following paper specification"""
-        res = []
-        for i, (w0, w1) in enumerate(zip(self.param_w0, self.param_w1)):
-            # Get argmax indices for ω₀ and ω₁ (these determine ap0 and ap1)
-            ap0_idx = int(torch.argmax(w0).item())
-            ap1_idx = int(torch.argmax(w1).item())
-            
-            # Note: bp0 and bp1 are computed via softmax, not argmax
-            # They represent weighted combinations, not single candidate selections
-            res.append((ap0_idx, ap1_idx))
-        return res
