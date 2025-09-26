@@ -214,16 +214,16 @@ if __name__ == "__main__":
 
     model.eval()
     with torch.no_grad():
-        # 再跑一次 forward 得到 node_ab_values
+        # Run forward again to get node_ab_values
         input_bits = torch.tensor([[1, 1, 0, 0, 1, 0, 1, 0]], dtype=torch.float32)
         node_ab_values = model(input_bits)
 
-        # 得到模型最后一层的输出
+        # Get the outputs of the model's last layer
         outputs = []
         for q in model.layers[-1]:
-            outputs.append(node_ab_values[q]["out"])  # 每个输出节点的值
+            outputs.append(node_ab_values[q]["out"])  # Value of each output node
         outputs = torch.stack(outputs, dim=1)  # [1, num_outputs]
 
-        # 把连续值转成 0/1（二值化）
+        # Convert continuous values to 0/1 (binarize)
         pred_bits = (outputs > 0).int()
         print("预测结果:", pred_bits.tolist())
