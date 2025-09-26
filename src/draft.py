@@ -226,4 +226,4 @@ if __name__ == "__main__":
 
         # Convert continuous values to 0/1 (binarize)
         pred_bits = (outputs > 0).int()
-        print("预测结果:", pred_bits.tolist())
+        print("Predicted Result:", pred_bits.tolist())
