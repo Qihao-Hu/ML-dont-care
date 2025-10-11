@@ -21,11 +21,15 @@ class LevelizedModel(nn.Module):
         self.param_w1 = nn.ParameterList()
         idx_counter = n_inputs
         prev_level_nodes = list(range(n_inputs))
-        for Lsize in layers_config:
+        num_layers = len(layers_config)
+        
+        for layer_idx, Lsize in enumerate(layers_config):
             this_level = list(range(idx_counter, idx_counter+Lsize))
             # For level i, parameter vector length = 2 * M_i where M_i is total nodes in previous levels
             M_i = len(prev_level_nodes)  # number of nodes available for connection
             param_length = 2 * M_i  # according to paper: length 2M_i
+            
+            is_last_layer = (layer_idx == num_layers - 1)
             
             # candidates for each node = all nodes in prev levels
             for _ in range(Lsize):
@@ -33,7 +37,15 @@ class LevelizedModel(nn.Module):
                 self.candidates.append(prev_level_nodes.copy())
                 # Create parameters with correct length (2 * M_i)
                 self.param_w0.append(nn.Parameter(torch.randn(param_length)))
-                self.param_w1.append(nn.Parameter(torch.randn(param_length)))
+                
+                # For the last layer, w1 is not used (only w0), so set it to zeros
+                if is_last_layer:
+                    w1_param = nn.Parameter(torch.zeros(param_length))
+                    w1_param.requires_grad = False  # Freeze w1 for output layer
+                    self.param_w1.append(w1_param)
+                else:
+                    self.param_w1.append(nn.Parameter(torch.randn(param_length)))
+            
             self.layers.append(this_level)
             idx_counter += Lsize
             prev_level_nodes = prev_level_nodes + this_level
@@ -60,7 +72,9 @@ class LevelizedModel(nn.Module):
         node_ab_values = {}  # Store ap0, ap1, bp0, bp1 for each node
         param_idx = 0
         # iterate layers
-        for level_nodes in self.layers:
+        for layer_idx, level_nodes in enumerate(self.layers):
+            is_last_layer = (layer_idx == len(self.layers) - 1)
+            
             for node in level_nodes:
                 cand = self.candidates[param_idx]
                 w0 = self.param_w0[param_idx]  # ωp,0 - full 2*M_i vector
@@ -113,12 +127,17 @@ class LevelizedModel(nn.Module):
                     'bp1': bp1
                 }
                 
-                # Use ap0 and ap1 as the two fanins for the AND gate (according to paper)
-                in0 = ap0  # First fanin: argmax selection from ωp,0
-                in1 = ap1  # Second fanin: argmax selection from ωp,1
+                # For last layer (output layer): directly use ap0
+                # For other layers: use AND gate with ap0 and ap1
+                if is_last_layer:
+                    out = ap0  # Output layer: directly use ap0
+                else:
+                    # Use ap0 and ap1 as the two fanins for the AND gate
+                    in0 = ap0  # First fanin: argmax selection from ωp,0
+                    in1 = ap1  # Second fanin: argmax selection from ωp,1
+                    # AND in ±1 domain: +1 if both +1 else -1
+                    out = torch.where((in0 > 0) & (in1 > 0), torch.tensor(1.0, device=device), torch.tensor(-1.0, device=device))
                 
-                # AND in ±1 domain: +1 if both +1 else -1
-                out = torch.where((in0 > 0) & (in1 > 0), torch.tensor(1.0, device=device), torch.tensor(-1.0, device=device))
                 node_vals[node] = out
                 
                 # Update the stored values to include output

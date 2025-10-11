@@ -1,5 +1,7 @@
 import torch
+import torch.nn.functional as F
 import time
+import sys
 from model import LevelizedModel
 
 def sign(x):
@@ -50,9 +52,11 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8):
     # f: dict node -> Tensor shape [B, 2]
     # g: dict node -> Tensor shape [B]
     # t: dict node -> scalar Tensor (no batch)
+    # m: dict (node_r, node_p, i, j) -> Tensor (for storing m[r,p,i,j])
     f = {}
     g = {}
     t = {}
+    m = {}
 
     # initialize containers
     for nid in range(max_node_id + 1):
@@ -70,120 +74,121 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8):
     assert output_bits.size(1) == num_outputs or output_bits.size(1) == len(model.output_nodes), \
         "output_bits width mismatch with model's output layer"
 
-    # We assume output_bits correspond to output_layer order; user used output_nodes earlier but
-    # here follow your prior code that set f for nodes in last layer.
     # Map {0,1} -> {-1,1}
     transformed = (output_bits[:, :num_outputs].float() * 2.0 - 1.0)  # [B, num_outputs]
     # assign into f for each q in output_layer
     for idx, q in enumerate(output_layer):
         val = transformed[:, idx]               # [B]
-        f[q] = torch.stack([val, val], dim=1)   # [B,2]
+        f[q] = torch.stack([val, torch.zeros_like(val)], dim=1)   # [B,2]
 
-    loss = torch.tensor(0.0, device=device)
+    loss = torch.tensor(0.0, device=device, requires_grad=True)
 
     # traverse layers backwards (excluding the output layer which is set)
     for layer_idx in range(len(model.layers) - 2, -1, -1):
         layer_nodes = model.layers[layer_idx]
-        layer_num = layer_idx + 1
-
+        
         for p in layer_nodes:
-            # t_p is scalar (accumulate weights for node p)
             t_p = torch.tensor(0.0, device=device)
-            # g_p is per-batch
+            
+            # Step 1: Calculate m[p,q] and accumulate t[p] for all next layers
+            # Iterate through all layers after current layer
+            for next_layer_idx in range(layer_idx + 1, len(model.layers)):
+                for q in model.layers[next_layer_idx]:
+                    # Check if q is in the output layer
+                    is_output_layer = (next_layer_idx == len(model.layers) - 1)
+
+                    if is_output_layer:
+                        # q is in output layer: m[p,q] comes directly from q's w0
+                        # Use softmax(w0) as s[q,0,:]
+                        row_idx = q - n_inputs
+                        w0_row = model.param_w0[row_idx]
+                        s0_row = F.softmax(w0_row, dim=0)  # Apply softmax
+                        
+                        idx0 = p
+                        idx1 = p + count_nodes_in_layers_before(model, q)
+                        
+                        m[(p, q, 0, 0)] = s0_row[idx0]
+                        m[(p, q, 0, 1)] = s0_row[idx1]
+
+                        # Accumulate t[p] (only w0 terms for output layer)
+                        t_p = t_p + m[(p, q, 0, 0)] + m[(p, q, 0, 1)]
+                        
+                    else:
+                        # Accumulate t[p] (both w0 and w1 terms for non-output layers)
+                        t_p = t_p + m[(p, q, 0, 0)] + m[(p, q, 0, 1)] + m[(p, q, 1, 0)] + m[(p, q, 1, 1)]
+            
+            # Step 2: Now that t[p] is fully calculated, compute g[p]
+            t[p] = t_p
+            t_p_safe = t_p if (t_p.abs() > eps).item() else (t_p + eps)
+            
             g_p = torch.zeros(B, device=device)
+            for next_layer_idx in range(layer_idx + 1, len(model.layers)):
+                for q in model.layers[next_layer_idx]:
+                    is_output_layer = (next_layer_idx == len(model.layers) - 1)
+                    
+                    fq0 = f[q][:, 0]
+                    fq1 = f[q][:, 1]
 
-            if layer_num == len(model.layers) - 1:
-                # Special handling matching the non-comment backprop_dc for last-1 layer
-                for next_layer_idx in range(layer_idx + 1, len(model.layers)):
-                    for q in model.layers[next_layer_idx]:
-                        row_idx = q - n_inputs
-                        w0_row = model.param_w0[row_idx]
-                        w1_row = model.param_w1[row_idx]
-
-                        idx0 = p
-                        idx1 = p + count_nodes_in_layers_before(model, q)
-
-                        m00 = w0_row[idx0]
-                        m01 = w0_row[idx1]
-
-                        # accumulate only m00+m01 for t_p
-                        t_p = t_p + (m00 + m01)
-                        t_p_safe = t_p if (t_p.abs() > eps).item() else (t_p + eps)
-
-                        fq0 = f[q][:, 0]
-                        # g[p] += (m00/t[p]) * f[q,0] + (m01/t[p]) * (- f[q,0])
-                        g_p = g_p + (m00 / t_p_safe) * fq0 + (m01 / t_p_safe) * (-fq0)
-            else:
-                # General case matching the non-comment backprop_dc
-                for next_layer_idx in range(layer_idx + 1, len(model.layers)):
-                    for q in model.layers[next_layer_idx]:
-                        row_idx = q - n_inputs
-                        w0_row = model.param_w0[row_idx]
-                        w1_row = model.param_w1[row_idx]
-
-                        idx0 = p
-                        idx1 = p + count_nodes_in_layers_before(model, q)
-
-                        m00 = w0_row[idx0]
-                        m01 = w0_row[idx1]
-                        m10 = w1_row[idx0]
-                        m11 = w1_row[idx1]
-
-                        # accumulate all four into t_p
-                        t_p = t_p + (m00 + m01 + m10 + m11)
-                        t_p_safe = t_p if (t_p.abs() > eps).item() else (t_p + eps)
-
-                        fq0 = f[q][:, 0]
-                        fq1 = f[q][:, 1]
-                        # g[p] += (m00/t)*f[q,0] + (m10/t)*f[q,1] + (m01/t)*(- f[q,0]) + (m11/t)*(- f[q,1])
-                        g_p = g_p + (m00 / t_p_safe) * fq0 + (m10 / t_p_safe) * fq1 \
-                                   + (m01 / t_p_safe) * (-fq0) + (m11 / t_p_safe) * (-fq1)
-
-            # now set f[p] according to your rules, but do it elementwise for batch
-            # node_ab_values[p]['ap0'] and ['ap1'] are tensors [B]
-            ap0 = node_ab_values[p]['ap0'].to(device)  # [B]
-            ap1 = node_ab_values[p]['ap1'].to(device)  # [B]
-
-            # elementwise masks (python bools per element avoided; keep tensors)
+                    if is_output_layer:
+                        # Output layer: only use w0 terms
+                        g_p = g_p + (m[(p, q, 0, 0)] / t_p_safe) * fq0 + (m[(p, q, 0, 1)] / t_p_safe) * (-fq0)
+                    else:
+                        # Non-output layer: use both w0 and w1 terms
+                        g_p = g_p + (m[(p, q, 0, 0)] / t_p_safe) * fq0 + (m[(p, q, 1, 0)] / t_p_safe) * fq1 \
+                                   + (m[(p, q, 0, 1)] / t_p_safe) * (-fq0) + (m[(p, q, 1, 1)] / t_p_safe) * (-fq1)
+            
+            g[p] = g_p
+            
+            # Set f[p] according to rules
+            ap0 = node_ab_values[p]['ap0'].to(device)
+            ap1 = node_ab_values[p]['ap1'].to(device)
+            
             mask0 = (g_p < 0) | (ap0 == 1)
             mask1 = (ap1 == -1)
-
-            maskA = mask0 & mask1  # condition to set f[p,0]=0
-
+            maskA = mask0 & mask1
+            
             mask2 = (g_p > 0) | (ap1 == 1)
             mask3 = (ap0 == -1)
-            maskB = mask2 & mask3  # condition to set f[p,1]=0
-
-            # default both equal to g_p
+            maskB = mask2 & mask3
+            
             f_p0 = g_p.clone()
             f_p1 = g_p.clone()
-
-            # set f_p0 to 0 where maskA true (elementwise), but use tensor ops (no in-place)
             f_p0 = torch.where(maskA, torch.zeros_like(f_p0), f_p0)
-
-            # set f_p1 to 0 where maskB true
             f_p1 = torch.where(maskB, torch.zeros_like(f_p1), f_p1)
-
-            # stack back into [B,2] and store
+            
             f[p] = torch.stack([f_p0, f_p1], dim=1)
-            t[p] = t_p
-            g[p] = g_p
+            
+            # Calculate m[r,p] for all previous layers
+            # m[r,p,i,j] = t[p] * s[p,i,j] where s[p,i,j] is softmax of p's weight
+            for prev_layer_idx in range(layer_idx):
+                for r in model.layers[prev_layer_idx]:
+                    row_idx_p = p - n_inputs
+                    w0_row_p = model.param_w0[row_idx_p]
+                    w1_row_p = model.param_w1[row_idx_p]
+                    
+                    # Apply softmax to get s[p,0,:] and s[p,1,:]
+                    s0_row_p = F.softmax(w0_row_p, dim=0)
+                    s1_row_p = F.softmax(w1_row_p, dim=0)
+                    
+                    r_idx0 = r
+                    r_idx1 = r + count_nodes_in_layers_before(model, p)
+                    
+                    m[(r, p, 0, 0)] = t_p * s0_row_p[r_idx0]
+                    m[(r, p, 0, 1)] = t_p * s0_row_p[r_idx1]
+                    m[(r, p, 1, 0)] = t_p * s1_row_p[r_idx0]
+                    m[(r, p, 1, 1)] = t_p * s1_row_p[r_idx1]
 
-            # compute loss term (use tensor ops)
-            bp0 = node_ab_values[p]['bp0'].to(device)  # [B]
-            bp1 = node_ab_values[p]['bp1'].to(device)  # [B]
-
-            # use torch.sign rather than python sign to remain in graph
-            sign_f0 = torch.sign(f_p0)  # returns -1,0,1 per element
+            
+            # Add to loss
+            bp0 = node_ab_values[p]['bp0'].to(device)
+            bp1 = node_ab_values[p]['bp1'].to(device)
+            sign_f0 = torch.sign(f_p0)
             sign_f1 = torch.sign(f_p1)
-
-            term0 = torch.abs(f_p0) * ((bp0 - sign_f0) ** 2)  # [B]
-            term1 = torch.abs(f_p1) * ((bp1 - sign_f1) ** 2)  # [B]
-
-            # sum over batch and add to scalar loss
+            term0 = torch.abs(f_p0) * ((bp0 - sign_f0) ** 2)
+            term1 = torch.abs(f_p1) * ((bp1 - sign_f1) ** 2)
             loss = loss + term0.sum() + term1.sum()
 
-    # final: average over batch size (optional; keep consistent with optimizer scale)
+    # final: average over batch size
     loss = loss / float(B)
     return loss
 
@@ -214,31 +219,75 @@ def load_data(file_path):
     return torch.tensor(inputs, dtype=torch.float32), torch.tensor(outputs, dtype=torch.float32)
 
 if __name__ == "__main__":
-    model = LevelizedModel(n_inputs=6, layers_config=[20, 20, 20, 6])
+    # Parse command line arguments
+    if len(sys.argv) != 4:
+        print("Usage: python backprop_dc.py <n_inputs> <n_hidden_layers> <hidden_layer_size>")
+        print("Example: python backprop_dc.py 8 4 10")
+        print("  This creates: n_inputs=8, layers_config=[10, 10, 10, 10, 8]")
+        sys.exit(1)
+    
+    try:
+        n_inputs = int(sys.argv[1])
+        n_hidden_layers = int(sys.argv[2])
+        hidden_layer_size = int(sys.argv[3])
+        
+        # Build layers_config: n_hidden_layers of hidden_layer_size, then n_inputs as output layer
+        layers_config = [hidden_layer_size] * n_hidden_layers + [n_inputs]
+        
+        print(f"Network Configuration:")
+        print(f"  n_inputs = {n_inputs}")
+        print(f"  layers_config = {layers_config}")
+        
+    except ValueError:
+        print("Error: All arguments must be integers")
+        sys.exit(1)
+    
+    # GPU
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Force use CPU
+    device = torch.device("cpu")
+    print(f"Using device: {device}")
+    
+    model = LevelizedModel(n_inputs=n_inputs, layers_config=layers_config)
+    model = model.to(device)  # Move model to GPU
     optimizer = torch.optim.Adam(model.parameters(), lr=0.1, betas=(0, 0.9), eps=1e-8)
     
     # Load training data
-    train_data_file = "/export/qhu56/ML-dont-care/train/3bit.txt"
+    train_data_file = "dataset/3bit_Multiplier.txt"
     train_input_data, train_output_data = load_data(train_data_file)
+    train_input_data = train_input_data.to(device)  # Move data to GPU
+    train_output_data = train_output_data.to(device)
     
     # Load test data
-    test_data_file = "/export/qhu56/ML-dont-care/test/3bit.txt"
+    test_data_file = "dataset/3bit_Multiplier.txt"
     test_input_data, test_output_data = load_data(test_data_file)
+    test_input_data = test_input_data.to(device)  # Move data to GPU
+    test_output_data = test_output_data.to(device)
     
     print(f"Loaded {len(train_input_data)} training samples")
     print(f"Loaded {len(test_input_data)} test samples")
     
+    # Patience mechanism for early stopping
+    patience = 100
+    patience_counter = 0
+    best_loss = float('inf')
+    best_model_state = None
+    
     # Record start time
     start_time = time.time()
-    
     # Open results file in append mode
     with open("results.txt", "a") as f:
         f.write(f"\n=== Training Session Started ===\n")
+        f.write(f"Device: {device}\n")
+        f.write(f"Network Architecture: {layers_config}\n")
+        f.write(f"Number of Inputs: {n_inputs}\n")
         f.write(f"Training samples: {len(train_input_data)}\n")
+        f.write(f"Patience: {patience}\n")
         f.write(f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}\n")
         
         early_stop = False
         final_step = 0
+        stop_reason = ""
         
         for step in range(10000):
             # Use all training samples (batch training)
@@ -252,21 +301,61 @@ if __name__ == "__main__":
             loss.backward()   # Automatically compute gradients for param_w0, param_w1
             optimizer.step()
 
+            current_loss = loss.item()
+            
+            # Update best model if current loss is better
+            if current_loss < best_loss:
+                best_loss = current_loss
+                # Save the best model state (deep copy)
+                best_model_state = {
+                    'param_w0': [p.detach().clone() for p in model.param_w0],
+                    'param_w1': [p.detach().clone() for p in model.param_w1],
+                    'step': step
+                }
+                patience_counter = 0  # Reset patience counter
+                f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | New best! (patience reset)\n")
+                f.flush()
+            else:
+                # Loss did not improve
+                patience_counter += 1
+                if step % 10 == 0:  # Write every 10 steps to reduce file size
+                    f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | Patience: {patience_counter}/{patience}\n")
+                    f.flush()
+            
+            # Check patience early stopping
+            if patience_counter >= patience:
+                final_step = step
+                early_stop = True
+                stop_reason = "patience"
+                end_time = time.time()
+                training_time = end_time - start_time
+                
+                f.write(f"\n=== Early Stopping: Patience Exceeded ===\n")
+                f.write(f"Final Step: {step:04d}\n")
+                f.write(f"Current Loss: {current_loss:.6f}\n")
+                f.write(f"Best Loss: {best_loss:.6f} (at step {best_model_state['step']})\n")
+                f.write(f"Training Time: {training_time:.2f} seconds\n")
+                f.write(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
+                f.flush()
+                break
+
             # Write to file and check early stopping condition
             if step % 10 == 0:  # Write every 10 steps to reduce file size
                 f.write(f"Step {step:03d} | Loss = {loss.item():.4f}\n")
                 f.flush()  # Ensure immediate writing to file
             
             # Check early stopping condition
-            if loss.item() < 0.1:
+            if loss.item() < 0.01:
                 final_step = step
                 early_stop = True
+                stop_reason = "loss_threshold"
                 end_time = time.time()
                 training_time = end_time - start_time
                 
-                f.write(f"\n=== Early Stopping Triggered ===\n")
-                f.write(f"Final Step: {step:03d}\n")
-                f.write(f"Final Loss: {loss.item():.4f}\n")
+                f.write(f"\n=== Early Stopping: Loss Threshold Reached ===\n")
+                f.write(f"Final Step: {step:04d}\n")
+                f.write(f"Final Loss: {loss.item():.6f}\n")
+                f.write(f"Best Loss: {best_loss:.6f} (at step {best_model_state['step']})\n")
                 f.write(f"Training Time: {training_time:.2f} seconds\n")
                 f.write(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
                 f.flush()
@@ -276,13 +365,46 @@ if __name__ == "__main__":
             end_time = time.time()
             training_time = end_time - start_time
             final_step = 9999
+            stop_reason = "max_steps"
             f.write(f"\n=== Training Completed (Max Steps Reached) ===\n")
-            f.write(f"Final Step: {final_step:03d}\n")
+            f.write(f"Final Step: {final_step:04d}\n")
+            f.write(f"Best Loss: {best_loss:.6f} (at step {best_model_state['step']})\n")
             f.write(f"Training Time: {training_time:.2f} seconds\n")
             f.write(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
     
-    if early_stop:
-        print(f"Training stopped early at step {final_step} (loss < 0.1)")
+    # Restore best model parameters
+    if best_model_state is not None:
+        print(f"\nRestoring best model from step {best_model_state['step']} with loss {best_loss:.6f}")
+        for i, p in enumerate(model.param_w0):
+            p.data.copy_(best_model_state['param_w0'][i])
+        for i, p in enumerate(model.param_w1):
+            p.data.copy_(best_model_state['param_w1'][i])
+        
+        # Save best parameters to file
+        with open("best_parameters.txt", "w") as f:
+            f.write(f"=== Best Model Parameters ===\n")
+            f.write(f"Network Architecture: {layers_config}\n")
+            f.write(f"Number of Inputs: {n_inputs}\n")
+            f.write(f"Best Loss: {best_loss:.6f}\n")
+            f.write(f"Best Step: {best_model_state['step']}\n")
+            f.write(f"Stop Reason: {stop_reason}\n\n")
+            
+            f.write("=== param_w0 (weights for input 0) ===\n")
+            for i, w0 in enumerate(best_model_state['param_w0']):
+                f.write(f"Layer {i} w0:\n")
+                f.write(f"{w0.cpu().numpy()}\n\n")
+            
+            f.write("=== param_w1 (weights for input 1) ===\n")
+            for i, w1 in enumerate(best_model_state['param_w1']):
+                f.write(f"Layer {i} w1:\n")
+                f.write(f"{w1.cpu().numpy()}\n\n")
+        
+        print("Best parameters saved to best_parameters.txt")
+    
+    if stop_reason == "patience":
+        print(f"Training stopped due to patience ({patience}) at step {final_step}")
+    elif stop_reason == "loss_threshold":
+        print(f"Training stopped early at step {final_step} (loss < 0.01)")
     else:
         print("Training completed (reached maximum steps).")
 
