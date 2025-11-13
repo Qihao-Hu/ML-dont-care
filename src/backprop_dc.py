@@ -110,135 +110,148 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
         time_profile['output_layer_loss'] = time.time() - start_output_loss
         start_loop1 = time.time()
 
-    # traverse layers backwards (excluding the output layer which is set)
+    # OPTIMIZATION: Wrap all DCBP construction (m, t, g, f) in no_grad()
+    # Only bp0/bp1 need gradients - the supervision construction doesn't
+    with torch.no_grad():
+        # traverse layers backwards (excluding the output layer which is set)
+        for layer_idx in range(len(model.layers) - 2, -1, -1):
+            layer_nodes = model.layers[layer_idx]
+            
+            for p in layer_nodes:
+                t_p = torch.tensor(0.0, device=device)
+                
+                # Step 1: Calculate m[p,q] and accumulate t[p] for all next layers
+                # Iterate through all layers after current layer
+                for next_layer_idx in range(layer_idx + 1, len(model.layers)):
+                    for q in model.layers[next_layer_idx]:
+                        # Check if q is in the output layer
+                        is_output_layer = (next_layer_idx == len(model.layers) - 1)
+
+                        if is_output_layer:
+                            # q is in output layer: m[p,q] comes directly from q's w0
+                            # Use softmax(w0) as s[q,0,:]
+                            row_idx = q - n_inputs
+                            w0_row = model.param_w0[row_idx].detach()  # Detach weights
+                            s0_row = F.softmax(w0_row, dim=0)  # Apply softmax
+                            
+                            # idx0 = p
+                            # idx1 = p + count_nodes_in_layers_before(model, q)
+                            cand_list_q = model.candidates[q - model.n_inputs]   # Index list of candidates for node q
+                            idx0 = cand_list_q.index(p)
+                            idx1 = idx0 + len(cand_list_q)
+                            
+                            m[(p, q, 0, 0)] = s0_row[idx0]
+                            m[(p, q, 0, 1)] = s0_row[idx1]
+
+                            # Accumulate t[p] (only w0 terms for output layer)
+                            t_p = t_p + m[(p, q, 0, 0)] + m[(p, q, 0, 1)]
+                            
+                        else:
+                            # Accumulate t[p] (both w0 and w1 terms for non-output layers)
+                            t_p = t_p + m[(p, q, 0, 0)] + m[(p, q, 0, 1)] + m[(p, q, 1, 0)] + m[(p, q, 1, 1)]
+                
+                # Step 2: Now that t[p] is fully calculated, compute g[p]
+                t[p] = t_p
+                t_p_safe = torch.where(t_p.abs() > eps, t_p, t_p + eps)
+
+                if profile_time and p == layer_nodes[0]:  # Time once per layer
+                    time_profile['loop1_m_pq_calculation'] += time.time() - start_loop1
+                    start_loop2 = time.time()
+
+                g_p = torch.zeros(B, device=device)
+                for next_layer_idx in range(layer_idx + 1, len(model.layers)):
+                    for q in model.layers[next_layer_idx]:
+                        is_output_layer = (next_layer_idx == len(model.layers) - 1)
+                        
+                        fq0 = f[q][:, 0]
+                        fq1 = f[q][:, 1]
+
+                        if is_output_layer:
+                            # Output layer: only use w0 terms
+                            g_p = g_p + (m[(p, q, 0, 0)] / t_p_safe) * fq0 + (m[(p, q, 0, 1)] / t_p_safe) * (-fq0)
+                        else:
+                            # Non-output layer: use both w0 and w1 terms
+                            g_p = g_p + (m[(p, q, 0, 0)] / t_p_safe) * fq0 + (m[(p, q, 1, 0)] / t_p_safe) * fq1 \
+                                       + (m[(p, q, 0, 1)] / t_p_safe) * (-fq0) + (m[(p, q, 1, 1)] / t_p_safe) * (-fq1)
+                
+                g[p] = g_p
+                
+                if profile_time and p == layer_nodes[0]:  # Time once per layer
+                    time_profile['loop2_g_p_calculation'] += time.time() - start_loop2
+                    start_loop3 = time.time()
+                
+                # Set f[p] according to rules
+                ap0 = node_ab_values[p]['ap0'].to(device)
+                ap1 = node_ab_values[p]['ap1'].to(device)
+                
+                mask0 = (g_p < 0) | (ap0 == 1)
+                mask1 = (ap1 == -1)
+                maskA = mask0 & mask1
+                
+                mask2 = (g_p > 0) | (ap1 == 1)
+                mask3 = (ap0 == -1)
+                maskB = mask2 & mask3
+                
+                f_p0 = g_p.clone()
+                f_p1 = g_p.clone()
+                f_p0 = torch.where(maskA, torch.zeros_like(f_p0), f_p0)
+                f_p1 = torch.where(maskB, torch.zeros_like(f_p1), f_p1)
+                
+                f[p] = torch.stack([f_p0, f_p1], dim=1)
+                
+                if profile_time and p == layer_nodes[0]:  # Time once per layer
+                    time_profile['loop3_f_p_calculation'] += time.time() - start_loop3
+                    start_loop4 = time.time()
+                
+                # Calculate m[r,p] for all previous layers
+                # m[r,p,i,j] = t[p] * s[p,i,j] where s[p,i,j] is softmax of p's weight
+                for prev_layer_idx in range(layer_idx):
+                    for r in model.layers[prev_layer_idx]:
+                        row_idx_p = p - n_inputs
+                        w0_row_p = model.param_w0[row_idx_p].detach()  # Detach weights
+                        w1_row_p = model.param_w1[row_idx_p].detach()  # Detach weights
+                        
+                        # Apply softmax to get s[p,0,:] and s[p,1,:]
+                        s0_row_p = F.softmax(w0_row_p, dim=0)
+                        s1_row_p = F.softmax(w1_row_p, dim=0)
+                        
+                        # r_idx0 = r
+                        # r_idx1 = r + count_nodes_in_layers_before(model, p)
+                        cand_list_p = model.candidates[row_idx_p]
+                        r_idx0 = cand_list_p.index(r)
+                        r_idx1 = r_idx0 + len(cand_list_p)
+                        
+                        m[(r, p, 0, 0)] = t_p * s0_row_p[r_idx0]
+                        m[(r, p, 0, 1)] = t_p * s0_row_p[r_idx1]
+                        m[(r, p, 1, 0)] = t_p * s1_row_p[r_idx0]
+                        m[(r, p, 1, 1)] = t_p * s1_row_p[r_idx1]
+
+                if profile_time and p == layer_nodes[0]:  # Time once per layer
+                    time_profile['loop4_m_rp_calculation'] += time.time() - start_loop4
+    
+    # OUTSIDE torch.no_grad(): Loss accumulation needs gradients for bp0/bp1
+    if profile_time:
+        start_loss_accum = time.time()
+    
+    # Add to loss using the constructed f values (which are detached)
     for layer_idx in range(len(model.layers) - 2, -1, -1):
-        layer_nodes = model.layers[layer_idx]
-        
-        for p in layer_nodes:
-            t_p = torch.tensor(0.0, device=device)
-            
-            # Step 1: Calculate m[p,q] and accumulate t[p] for all next layers
-            # Iterate through all layers after current layer
-            for next_layer_idx in range(layer_idx + 1, len(model.layers)):
-                for q in model.layers[next_layer_idx]:
-                    # Check if q is in the output layer
-                    is_output_layer = (next_layer_idx == len(model.layers) - 1)
-
-                    if is_output_layer:
-                        # q is in output layer: m[p,q] comes directly from q's w0
-                        # Use softmax(w0) as s[q,0,:]
-                        row_idx = q - n_inputs
-                        w0_row = model.param_w0[row_idx]
-                        s0_row = F.softmax(w0_row, dim=0)  # Apply softmax
-                        
-                        # idx0 = p
-                        # idx1 = p + count_nodes_in_layers_before(model, q)
-                        cand_list_q = model.candidates[q - model.n_inputs]   # Index list of candidates for node q
-                        idx0 = cand_list_q.index(p)
-                        idx1 = idx0 + len(cand_list_q)
-                        
-                        m[(p, q, 0, 0)] = s0_row[idx0]
-                        m[(p, q, 0, 1)] = s0_row[idx1]
-
-                        # Accumulate t[p] (only w0 terms for output layer)
-                        t_p = t_p + m[(p, q, 0, 0)] + m[(p, q, 0, 1)]
-                        
-                    else:
-                        # Accumulate t[p] (both w0 and w1 terms for non-output layers)
-                        t_p = t_p + m[(p, q, 0, 0)] + m[(p, q, 0, 1)] + m[(p, q, 1, 0)] + m[(p, q, 1, 1)]
-            
-            # Step 2: Now that t[p] is fully calculated, compute g[p]
-            t[p] = t_p
-            t_p_safe = torch.where(t_p.abs() > eps, t_p, t_p + eps)
-
-            if profile_time and p == layer_nodes[0]:  # Time once per layer
-                time_profile['loop1_m_pq_calculation'] += time.time() - start_loop1
-                start_loop2 = time.time()
-
-            g_p = torch.zeros(B, device=device)
-            for next_layer_idx in range(layer_idx + 1, len(model.layers)):
-                for q in model.layers[next_layer_idx]:
-                    is_output_layer = (next_layer_idx == len(model.layers) - 1)
-                    
-                    fq0 = f[q][:, 0]
-                    fq1 = f[q][:, 1]
-
-                    if is_output_layer:
-                        # Output layer: only use w0 terms
-                        g_p = g_p + (m[(p, q, 0, 0)] / t_p_safe) * fq0 + (m[(p, q, 0, 1)] / t_p_safe) * (-fq0)
-                    else:
-                        # Non-output layer: use both w0 and w1 terms
-                        g_p = g_p + (m[(p, q, 0, 0)] / t_p_safe) * fq0 + (m[(p, q, 1, 0)] / t_p_safe) * fq1 \
-                                   + (m[(p, q, 0, 1)] / t_p_safe) * (-fq0) + (m[(p, q, 1, 1)] / t_p_safe) * (-fq1)
-            
-            g[p] = g_p
-            
-            if profile_time and p == layer_nodes[0]:  # Time once per layer
-                time_profile['loop2_g_p_calculation'] += time.time() - start_loop2
-                start_loop3 = time.time()
-            
-            # Set f[p] according to rules
-            ap0 = node_ab_values[p]['ap0'].to(device)
-            ap1 = node_ab_values[p]['ap1'].to(device)
-            
-            mask0 = (g_p < 0) | (ap0 == 1)
-            mask1 = (ap1 == -1)
-            maskA = mask0 & mask1
-            
-            mask2 = (g_p > 0) | (ap1 == 1)
-            mask3 = (ap0 == -1)
-            maskB = mask2 & mask3
-            
-            f_p0 = g_p.clone()
-            f_p1 = g_p.clone()
-            f_p0 = torch.where(maskA, torch.zeros_like(f_p0), f_p0)
-            f_p1 = torch.where(maskB, torch.zeros_like(f_p1), f_p1)
-            
-            f[p] = torch.stack([f_p0, f_p1], dim=1)
-            
-            if profile_time and p == layer_nodes[0]:  # Time once per layer
-                time_profile['loop3_f_p_calculation'] += time.time() - start_loop3
-                start_loop4 = time.time()
-            
-            # Calculate m[r,p] for all previous layers
-            # m[r,p,i,j] = t[p] * s[p,i,j] where s[p,i,j] is softmax of p's weight
-            for prev_layer_idx in range(layer_idx):
-                for r in model.layers[prev_layer_idx]:
-                    row_idx_p = p - n_inputs
-                    w0_row_p = model.param_w0[row_idx_p]
-                    w1_row_p = model.param_w1[row_idx_p]
-                    
-                    # Apply softmax to get s[p,0,:] and s[p,1,:]
-                    s0_row_p = F.softmax(w0_row_p, dim=0)
-                    s1_row_p = F.softmax(w1_row_p, dim=0)
-                    
-                    # r_idx0 = r
-                    # r_idx1 = r + count_nodes_in_layers_before(model, p)
-                    cand_list_p = model.candidates[row_idx_p]
-                    r_idx0 = cand_list_p.index(r)
-                    r_idx1 = r_idx0 + len(cand_list_p)
-                    
-                    m[(r, p, 0, 0)] = t_p * s0_row_p[r_idx0]
-                    m[(r, p, 0, 1)] = t_p * s0_row_p[r_idx1]
-                    m[(r, p, 1, 0)] = t_p * s1_row_p[r_idx0]
-                    m[(r, p, 1, 1)] = t_p * s1_row_p[r_idx1]
-
-            if profile_time and p == layer_nodes[0]:  # Time once per layer
-                time_profile['loop4_m_rp_calculation'] += time.time() - start_loop4
-                start_loss_accum = time.time()
-            
-            # Add to loss
+        for p in model.layers[layer_idx]:
+            # bp0/bp1 are differentiable (from forward pass)
             bp0 = node_ab_values[p]['bp0'].to(device)
             bp1 = node_ab_values[p]['bp1'].to(device)
+            
+            # f_p0 and f_p1 are detached (from DCBP construction)
+            f_p0 = f[p][:, 0]
+            f_p1 = f[p][:, 1]
+            
             sign_f0 = torch.sign(f_p0)
             sign_f1 = torch.sign(f_p1)
             term0 = torch.abs(f_p0) * ((bp0 - sign_f0) ** 2)
             term1 = torch.abs(f_p1) * ((bp1 - sign_f1) ** 2)
             loss = loss + term0.sum() + term1.sum()
-            
-            if profile_time and p == layer_nodes[0]:  # Time once per layer
-                time_profile['loss_accumulation'] += time.time() - start_loss_accum
-                start_loop1 = time.time()  # Reset for next layer
+    
+    if profile_time:
+        time_profile['loss_accumulation'] = time.time() - start_loss_accum
 
     # final: average over batch size
     loss = loss / float(B)
