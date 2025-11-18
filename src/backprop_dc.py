@@ -110,6 +110,28 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
         time_profile['output_layer_loss'] = time.time() - start_output_loss
         start_loop1 = time.time()
 
+    # SAFE OPTIMIZATION 1: Build candidate index map ONCE (static structure)
+    # This map never changes, so we can cache it in the model object
+    if not hasattr(model, 'cand_map'):
+        model.cand_map = {}
+        for node_id in range(n_inputs, n_inputs + len(model.param_w0)):
+            cand_list = model.candidates[node_id - n_inputs]
+            M_i = len(cand_list)
+            for cand_idx, cand in enumerate(cand_list):
+                # Store both idx0 and idx1 for O(1) lookup
+                model.cand_map[(node_id, cand)] = (cand_idx, cand_idx + M_i)
+
+    # SAFE OPTIMIZATION 2: Pre-compute softmax for CURRENT weights (updates each step)
+    # This MUST be inside backprop_dc() to use the updated weights after optimizer.step()
+    softmax_w0_cache = {}
+    softmax_w1_cache = {}
+    with torch.no_grad():
+        for node_id in range(n_inputs, max_node_id + 1):
+            if node_id - n_inputs < len(model.param_w0):
+                # Use current weights (these change every step!)
+                softmax_w0_cache[node_id] = F.softmax(model.param_w0[node_id - n_inputs].detach(), dim=0)
+                softmax_w1_cache[node_id] = F.softmax(model.param_w1[node_id - n_inputs].detach(), dim=0)
+
     # OPTIMIZATION: Wrap all DCBP construction (m, t, g, f) in no_grad()
     # Only bp0/bp1 need gradients - the supervision construction doesn't
     with torch.no_grad():
@@ -129,16 +151,11 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
 
                         if is_output_layer:
                             # q is in output layer: m[p,q] comes directly from q's w0
-                            # Use softmax(w0) as s[q,0,:]
-                            row_idx = q - n_inputs
-                            w0_row = model.param_w0[row_idx].detach()  # Detach weights
-                            s0_row = F.softmax(w0_row, dim=0)  # Apply softmax
+                            # Use PRE-COMPUTED softmax (computed with current weights above)
+                            s0_row = softmax_w0_cache[q]
                             
-                            # idx0 = p
-                            # idx1 = p + count_nodes_in_layers_before(model, q)
-                            cand_list_q = model.candidates[q - model.n_inputs]   # Index list of candidates for node q
-                            idx0 = cand_list_q.index(p)
-                            idx1 = idx0 + len(cand_list_q)
+                            # Use FAST O(1) lookup instead of O(N) .index() search
+                            idx0, idx1 = model.cand_map[(q, p)]
                             
                             m[(p, q, 0, 0)] = s0_row[idx0]
                             m[(p, q, 0, 1)] = s0_row[idx1]
@@ -207,19 +224,17 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
                 # m[r,p,i,j] = t[p] * s[p,i,j] where s[p,i,j] is softmax of p's weight
                 for prev_layer_idx in range(layer_idx):
                     for r in model.layers[prev_layer_idx]:
-                        row_idx_p = p - n_inputs
-                        w0_row_p = model.param_w0[row_idx_p].detach()  # Detach weights
-                        w1_row_p = model.param_w1[row_idx_p].detach()  # Detach weights
+                        # Use PRE-COMPUTED softmax (computed with current weights above)
+                        s0_row_p = softmax_w0_cache[p]
+                        s1_row_p = softmax_w1_cache[p]
                         
-                        # Apply softmax to get s[p,0,:] and s[p,1,:]
-                        s0_row_p = F.softmax(w0_row_p, dim=0)
-                        s1_row_p = F.softmax(w1_row_p, dim=0)
+                        # Use FAST O(1) lookup instead of O(N) .index() search
+                        r_idx0, r_idx1 = model.cand_map[(p, r)]
                         
-                        # r_idx0 = r
-                        # r_idx1 = r + count_nodes_in_layers_before(model, p)
-                        cand_list_p = model.candidates[row_idx_p]
-                        r_idx0 = cand_list_p.index(r)
-                        r_idx1 = r_idx0 + len(cand_list_p)
+                        m[(r, p, 0, 0)] = t_p * s0_row_p[r_idx0]
+                        m[(r, p, 0, 1)] = t_p * s0_row_p[r_idx1]
+                        m[(r, p, 1, 0)] = t_p * s1_row_p[r_idx0]
+                        m[(r, p, 1, 1)] = t_p * s1_row_p[r_idx1]
                         
                         m[(r, p, 0, 0)] = t_p * s0_row_p[r_idx0]
                         m[(r, p, 0, 1)] = t_p * s0_row_p[r_idx1]
@@ -246,7 +261,9 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
             
             sign_f0 = torch.sign(f_p0)
             sign_f1 = torch.sign(f_p1)
+
             term0 = torch.abs(f_p0) * ((bp0 - sign_f0) ** 2)
+            # print("term0.shape:", term0.shape)
             term1 = torch.abs(f_p1) * ((bp1 - sign_f1) ** 2)
             loss = loss + term0.sum() + term1.sum()
     
