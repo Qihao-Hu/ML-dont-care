@@ -235,11 +235,6 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
                         m[(r, p, 0, 1)] = t_p * s0_row_p[r_idx1]
                         m[(r, p, 1, 0)] = t_p * s1_row_p[r_idx0]
                         m[(r, p, 1, 1)] = t_p * s1_row_p[r_idx1]
-                        
-                        m[(r, p, 0, 0)] = t_p * s0_row_p[r_idx0]
-                        m[(r, p, 0, 1)] = t_p * s0_row_p[r_idx1]
-                        m[(r, p, 1, 0)] = t_p * s1_row_p[r_idx0]
-                        m[(r, p, 1, 1)] = t_p * s1_row_p[r_idx1]
 
                 if profile_time and p == layer_nodes[0]:  # Time once per layer
                     time_profile['loop4_m_rp_calculation'] += time.time() - start_loop4
