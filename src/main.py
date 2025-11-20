@@ -12,6 +12,43 @@ from model import LevelizedModel
 from backprop_dc import backprop_dc
 
 
+def compare_predictions(expected, predicted):
+    """
+    Compare expected and predicted results and count bit differences.
+    
+    Args:
+        expected: Tensor [N, num_bits] - expected output bits
+        predicted: Tensor [N, num_bits] - predicted output bits
+    
+    Returns:
+        dict: Statistics of bit differences
+    """
+    # Calculate bit differences per sample
+    diff = (expected != predicted).int()  # [N, num_bits], 1 where different, 0 where same
+    num_diff_bits = diff.sum(dim=1)  # [N], number of different bits per sample
+    
+    # Count samples by number of different bits
+    max_bits = expected.shape[1]
+    bit_diff_counts = {}
+    
+    for num_bits in range(max_bits + 1):
+        count = (num_diff_bits == num_bits).sum().item()
+        bit_diff_counts[num_bits] = count
+    
+    # Calculate accuracy
+    total_samples = expected.shape[0]
+    correct_samples = bit_diff_counts[0]
+    accuracy = (correct_samples / total_samples * 100) if total_samples > 0 else 0
+    
+    return {
+        'bit_diff_counts': bit_diff_counts,
+        'total_samples': total_samples,
+        'correct_samples': correct_samples,
+        'accuracy': accuracy,
+        'max_bits': max_bits
+    }
+
+
 def load_data(file_path):
     """Load input-output pairs from the data file"""
     inputs = []
@@ -81,16 +118,21 @@ def write_timing_summary(f, timing_stats, num_steps):
 
 if __name__ == "__main__":
     # Parse command line arguments
-    if len(sys.argv) != 4:
-        print("Usage: python main.py <n_inputs> <n_hidden_layers> <hidden_layer_size>")
-        print("Example: python main.py 8 4 10")
-        print("  This creates: n_inputs=8, layers_config=[10, 10, 10, 10, 8]")
+    if len(sys.argv) < 6 or len(sys.argv) > 7:
+        print("Usage: python main.py <n_inputs> <n_hidden_layers> <hidden_layer_size> <train_data_file> <test_data_file> [learning_rate]")
+        print("Example: python main.py 6 10 20 dataset/3bit_Multiplier.txt dataset/3bit_Multiplier.txt")
+        print("         python main.py 6 10 20 dataset/3bit_Multiplier.txt dataset/3bit_Multiplier.txt 0.05")
+        print("  This creates: n_inputs=6, layers_config=[20, 20, ..., 20, 6]")
+        print("  Default learning rate: 0.08")
         sys.exit(1)
     
     try:
         n_inputs = int(sys.argv[1])
         n_hidden_layers = int(sys.argv[2])
         hidden_layer_size = int(sys.argv[3])
+        train_data_file = sys.argv[4]
+        test_data_file = sys.argv[5]
+        learning_rate = float(sys.argv[6]) if len(sys.argv) == 7 else 0.08  # Default LR
         
         # Build layers_config: n_hidden_layers of hidden_layer_size, then n_inputs as output layer
         layers_config = [hidden_layer_size] * n_hidden_layers + [n_inputs]
@@ -98,9 +140,13 @@ if __name__ == "__main__":
         print(f"Network Configuration:")
         print(f"  n_inputs = {n_inputs}")
         print(f"  layers_config = {layers_config}")
+        print(f"  learning_rate = {learning_rate}")
+        print(f"  train_data_file = {train_data_file}")
+        print(f"  test_data_file = {test_data_file}")
         
     except ValueError:
-        print("Error: All arguments must be integers")
+        print("Error: n_inputs, n_hidden_layers, and hidden_layer_size must be integers")
+        print("       learning_rate must be a float")
         sys.exit(1)
     
     # GPU
@@ -111,16 +157,16 @@ if __name__ == "__main__":
     
     model = LevelizedModel(n_inputs=n_inputs, layers_config=layers_config)
     model = model.to(device)  # Move model to GPU
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1, betas=(0, 0.9), eps=1e-8)
     
-    # Load training data
-    train_data_file = "dataset/3bit_Multiplier.txt"
+    # Use adaptive learning rate with better beta values
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, betas=(0, 0.9), eps=1e-8, weight_decay=1e-5)
+    
+    # Load training data (from command-line argument)
     train_input_data, train_output_data = load_data(train_data_file)
     train_input_data = train_input_data.to(device)  # Move data to GPU
     train_output_data = train_output_data.to(device)
     
-    # Load test data
-    test_data_file = "dataset/3bit_Multiplier.txt"
+    # Load test data (from command-line argument)
     test_input_data, test_output_data = load_data(test_data_file)
     test_input_data = test_input_data.to(device)  # Move data to GPU
     test_output_data = test_output_data.to(device)
@@ -128,8 +174,13 @@ if __name__ == "__main__":
     print(f"Loaded {len(train_input_data)} training samples")
     print(f"Loaded {len(test_input_data)} test samples")
     
+    # Learning rate scheduler for adaptive learning
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=50, min_lr=1e-6
+    )
+    
     # Patience mechanism for early stopping
-    patience = 100
+    patience = 100  # Increased patience for better convergence
     patience_counter = 0
     best_loss = float('inf')
     best_model_state = None
@@ -151,6 +202,7 @@ if __name__ == "__main__":
         f.write(f"Device: {device}\n")
         f.write(f"Network Architecture: {layers_config}\n")
         f.write(f"Number of Inputs: {n_inputs}\n")
+        f.write(f"Learning Rate: {learning_rate} (initial)\n")
         f.write(f"Training samples: {len(train_input_data)}\n")
         f.write(f"Patience: {patience}\n")
         f.write(f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}\n")
@@ -178,11 +230,19 @@ if __name__ == "__main__":
             backward_start = time.time()
             optimizer.zero_grad()
             loss.backward()   # Automatically compute gradients for param_w0, param_w1
+            
+            # Gradient clipping to prevent exploding gradients
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            
             backward_time = time.time() - backward_start
             
             # === TIME PROFILING: Optimizer Step ===
             optimizer_start = time.time()
             optimizer.step()
+            
+            # Update learning rate based on loss
+            scheduler.step(loss)
+            
             optimizer_time = time.time() - optimizer_start
             
             # Store timing statistics
@@ -203,7 +263,8 @@ if __name__ == "__main__":
                     'step': step
                 }
                 patience_counter = 0  # Reset patience counter
-                f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | New best! (patience reset)\n")
+                current_lr = optimizer.param_groups[0]['lr']
+                f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | LR = {current_lr:.6f} | New best! (patience reset)\n")
                 
                 # Write timing information for this step
                 if profile_this_step:
@@ -221,8 +282,9 @@ if __name__ == "__main__":
             else:
                 # Loss did not improve
                 patience_counter += 1
+                current_lr = optimizer.param_groups[0]['lr']
                 if step % 10 == 0:  # Write every 10 steps to reduce file size
-                    f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | Patience: {patience_counter}/{patience}\n")
+                    f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | LR = {current_lr:.6f} | Patience: {patience_counter}/{patience}\n")
                     
                     # Write timing information every 100 steps
                     if profile_this_step:
@@ -346,12 +408,51 @@ if __name__ == "__main__":
         # Convert continuous values to 0/1 (binarize)
         test_pred_bits = (test_outputs > 0).int()
         
+        # Compare predictions with expected results
+        comparison_stats = compare_predictions(test_output_data.int(), test_pred_bits)
+        
         # Write final test results to file
         with open("results.txt", "a") as f:
             f.write("=== Final Test Results ===\n")
+            
+            # Write comparison statistics
+            f.write(f"\n--- Prediction Accuracy Summary ---\n")
+            f.write(f"Total samples: {comparison_stats['total_samples']}\n")
+            f.write(f"Correct predictions: {comparison_stats['correct_samples']}\n")
+            f.write(f"Accuracy: {comparison_stats['accuracy']:.2f}%\n\n")
+            
+            f.write(f"--- Bit Difference Distribution ---\n")
+            for num_diff in range(comparison_stats['max_bits'] + 1):
+                count = comparison_stats['bit_diff_counts'][num_diff]
+                percentage = (count / comparison_stats['total_samples'] * 100) if comparison_stats['total_samples'] > 0 else 0
+                if num_diff == 0:
+                    f.write(f"Exactly correct (0 bits different): {count} samples ({percentage:.2f}%)\n")
+                elif num_diff == 1:
+                    f.write(f"1 bit different: {count} samples ({percentage:.2f}%)\n")
+                else:
+                    f.write(f"{num_diff} bits different: {count} samples ({percentage:.2f}%)\n")
+            
+            f.write(f"\n--- Detailed Results ---\n")
             for i in range(len(test_input_data)):
                 f.write(f"Input: {test_input_data[i].int().tolist()}, "
                        f"Expected: {test_output_data[i].int().tolist()}, "
                        f"Predicted: {test_pred_bits[i].tolist()}\n")
             f.write("=== Training Session Completed ===\n\n")
+        
+        # Print summary to console
+        print("\n=== Test Results Summary ===")
+        print(f"Total samples: {comparison_stats['total_samples']}")
+        print(f"Correct predictions: {comparison_stats['correct_samples']}")
+        print(f"Accuracy: {comparison_stats['accuracy']:.2f}%")
+        print("\nBit Difference Distribution:")
+        for num_diff in range(comparison_stats['max_bits'] + 1):
+            count = comparison_stats['bit_diff_counts'][num_diff]
+            percentage = (count / comparison_stats['total_samples'] * 100) if comparison_stats['total_samples'] > 0 else 0
+            if num_diff == 0:
+                print(f"  Exactly correct (0 bits different): {count} samples ({percentage:.2f}%)")
+            elif num_diff == 1:
+                print(f"  1 bit different: {count} samples ({percentage:.2f}%)")
+            else:
+                print(f"  {num_diff} bits different: {count} samples ({percentage:.2f}%)")
+    
     print("Test completed.")

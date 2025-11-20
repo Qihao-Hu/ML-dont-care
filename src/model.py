@@ -86,15 +86,15 @@ class LevelizedModel(nn.Module):
                 # Collect candidate node values x = (x0, x1, ..., x_{M_i-1})
                 candidate_values = []
                 for cand_idx in cand:
-                    candidate_values.append(node_vals[cand_idx])  # [B]
+                    candidate_values.append(node_vals[cand_idx])  # [B]              
                 x = torch.stack(candidate_values, dim=0)  # [M_i, B]
-                
+                 
                 # Construct yi according to paper definition:
                 # yi = (yi_0, yi_1, ..., yi_{2M_i-1}) where:
                 # yi_k = x_k for k < M_i (original values)
                 # yi_k = -x_{k-M_i} for k >= M_i (negated values)
                 yi = torch.cat([x, -x], dim=0)  # [2*M_i, B]
-                
+
                 # Apply paper formulas directly:
                 # ap,0 = yi[argmax(ωp,0)] - select from yi using full ωp,0
                 # bp,0 = yi · softmax(ωp,0) - weighted combination using full ωp,0
@@ -144,6 +144,7 @@ class LevelizedModel(nn.Module):
                 node_ab_values[node]['out'] = out
                 
                 param_idx += 1
+            # print("node_ab_values after layer", node_ab_values.keys())
         # build outputs
         outputs = []
         for i, on in enumerate(self.output_nodes):
