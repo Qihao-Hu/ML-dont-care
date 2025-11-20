@@ -22,7 +22,7 @@ def count_nodes_in_layers_before(model, node_p):
             total_nodes += len(model.layers[layer_idx])
     return total_nodes
 
-def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False, return_internals=False):
+def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False, return_internals=False, debug_output=False):
     """
     Compute loss using don't-care backprop logic (batch-aware, autograd-friendly).
     
@@ -34,6 +34,7 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
         eps: Small epsilon for numerical stability
         profile_time: if True, return timing information
         return_internals: if True, return internal variables (m, t, f, g)
+        debug_output: if True, write m, t, g, f for each node to debug.txt
     
     Returns:
         If profile_time=False and return_internals=False: loss (scalar tensor)
@@ -41,6 +42,13 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
         If return_internals=True: (loss, {'m': dict, 't': dict, 'f': dict, 'g': dict})
         If both True: (loss, time_profile, internals)
     """
+    # Clear debug file at the start if debug output is enabled
+    if debug_output:
+        with open('debug.txt', 'w') as debug_file:
+            debug_file.write("="*80 + "\n")
+            debug_file.write("DEBUG OUTPUT: backprop_dc - m, t, g, f for each node\n")
+            debug_file.write("="*80 + "\n\n")
+    
     if profile_time:
         time_profile = {
             'initialization': 0.0,
@@ -139,6 +147,9 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
         for layer_idx in range(len(model.layers) - 2, -1, -1):
             layer_nodes = model.layers[layer_idx]
             
+            if profile_time and layer_idx == len(model.layers) - 2:
+                start_loop1 = time.time()
+            
             for p in layer_nodes:
                 t_p = torch.tensor(0.0, device=device)
                 
@@ -166,7 +177,7 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
                         else:
                             # Accumulate t[p] (both w0 and w1 terms for non-output layers)
                             t_p = t_p + m[(p, q, 0, 0)] + m[(p, q, 0, 1)] + m[(p, q, 1, 0)] + m[(p, q, 1, 1)]
-                
+                 
                 # Step 2: Now that t[p] is fully calculated, compute g[p]
                 t[p] = t_p
                 t_p_safe = torch.where(t_p.abs() > eps, t_p, t_p + eps)
@@ -238,6 +249,204 @@ def backprop_dc(model, node_ab_values, output_bits, eps=1e-8, profile_time=False
 
                 if profile_time and p == layer_nodes[0]:  # Time once per layer
                     time_profile['loop4_m_rp_calculation'] += time.time() - start_loop4
+            
+            # DEBUG: After finishing all nodes in this layer, write ALL network nodes' m, t, g, f to debug.txt
+            if debug_output:
+                with open('debug.txt', 'a') as debug_file:
+                    debug_file.write(f"\n{'#'*80}\n")
+                    debug_file.write(f"LAYER {layer_idx} COMPLETED\n")
+                    debug_file.write(f"Current layer nodes: {layer_nodes}\n")
+                    debug_file.write(f"{'#'*80}\n")
+                    
+                    # First, output ap0, ap1, bp0, bp1 for current layer nodes
+                    debug_file.write(f"\nCurrent layer forward pass values:\n")
+                    debug_file.write(f"{'='*80}\n")
+                    for p in layer_nodes:
+                        if p in node_ab_values:
+                            ap0 = node_ab_values[p]['ap0'].to(device)
+                            ap1 = node_ab_values[p]['ap1'].to(device)
+                            bp0 = node_ab_values[p]['bp0'].to(device)
+                            bp1 = node_ab_values[p]['bp1'].to(device)
+                            
+                            debug_file.write(f"\nNode {p}:\n")
+                            debug_file.write(f"  ap0 (shape {ap0.shape}): ")
+                            if len(ap0) > 5:
+                                debug_file.write(f"[First 5]: {ap0[:5].cpu().numpy()}\n")
+                            else:
+                                debug_file.write(f"{ap0.cpu().numpy()}\n")
+                            
+                            debug_file.write(f"  ap1 (shape {ap1.shape}): ")
+                            if len(ap1) > 5:
+                                debug_file.write(f"[First 5]: {ap1[:5].cpu().numpy()}\n")
+                            else:
+                                debug_file.write(f"{ap1.cpu().numpy()}\n")
+                            
+                            debug_file.write(f"  bp0 (shape {bp0.shape}): ")
+                            if len(bp0) > 5:
+                                debug_file.write(f"[First 5]: {bp0[:5].cpu().numpy()}\n")
+                            else:
+                                debug_file.write(f"{bp0.cpu().numpy()}\n")
+                            
+                            debug_file.write(f"  bp1 (shape {bp1.shape}): ")
+                            if len(bp1) > 5:
+                                debug_file.write(f"[First 5]: {bp1[:5].cpu().numpy()}\n")
+                            else:
+                                debug_file.write(f"{bp1.cpu().numpy()}\n")
+                    
+                    debug_file.write(f"\n{'#'*80}\n")
+                    debug_file.write(f"OUTPUT: ALL NETWORK NODES STATE (including all layers)\n")
+                    debug_file.write(f"{'#'*80}\n\n")
+                    
+                    # Collect ALL nodes in the entire network
+                    all_network_nodes = []
+                    
+                    # Add all hidden layer nodes (Layer 0, 1, 2, ...)
+                    for l_idx in range(len(model.layers) - 1):
+                        all_network_nodes.extend(model.layers[l_idx])
+                    
+                    # Add output layer nodes
+                    output_layer = model.layers[-1]
+                    all_network_nodes.extend(output_layer)
+                    
+                    debug_file.write(f"Total network nodes: {sorted(all_network_nodes)}\n")
+                    debug_file.write(f"Number of nodes: {len(all_network_nodes)}\n\n")
+                    
+                    # Write information for each node in the entire network
+                    for node_id in sorted(all_network_nodes):
+                        debug_file.write(f"\n{'='*80}\n")
+                        debug_file.write(f"Node = {node_id}")
+                        
+                        # Identify which layer this node belongs to
+                        if node_id in output_layer:
+                            debug_file.write(f" (Output Layer - Layer {len(model.layers)-1})\n")
+                        else:
+                            for l_idx, layer in enumerate(model.layers[:-1]):
+                                if node_id in layer:
+                                    debug_file.write(f" (Hidden Layer {l_idx})\n")
+                                    break
+                        
+                        debug_file.write(f"{'='*80}\n")
+                        
+                        # Write t[node_id]
+                        if node_id in t:
+                            t_val = t[node_id]
+                            t_str = f"{t_val.item():.6f}" if isinstance(t_val, torch.Tensor) else f"{t_val:.6f}"
+                            debug_file.write(f"\nt[{node_id}] = {t_str}\n")
+                        else:
+                            debug_file.write(f"\nt[{node_id}] = Not computed yet (will be computed in future layers)\n")
+                        
+                        # Write g[node_id]
+                        if node_id in g:
+                            debug_file.write(f"\ng[{node_id}] (shape {g[node_id].shape}):\n")
+                            g_arr = g[node_id].cpu().numpy()
+                            # Print first 5 values if batch is large
+                            if len(g_arr) > 5:
+                                debug_file.write(f"  [First 5]: {g_arr[:5]}\n")
+                            else:
+                                debug_file.write(f"  {g_arr}\n")
+                        else:
+                            debug_file.write(f"\ng[{node_id}] = Not computed yet (will be computed in future layers)\n")
+                        
+                        # Write f[node_id]
+                        if node_id in f:
+                            debug_file.write(f"\nf[{node_id}] (shape {f[node_id].shape}):\n")
+                            f_arr = f[node_id].cpu().numpy()
+                            # Print first 5 rows if batch is large
+                            if len(f_arr) > 5:
+                                debug_file.write(f"  [First 5 rows]:\n{f_arr[:5]}\n")
+                            else:
+                                debug_file.write(f"{f_arr}\n")
+                        else:
+                            debug_file.write(f"\nf[{node_id}] = Not computed yet (will be computed in future layers)\n")
+                        
+                        # Write ap0, ap1, bp0, bp1 for non-input nodes
+                        if node_id >= n_inputs and node_id - n_inputs < len(model.param_w0):
+                            node_index = node_id - n_inputs
+                            debug_file.write(f"\nNode {node_id} forward pass values:\n")
+                            debug_file.write("-" * 80 + "\n")
+                            
+                            # Get ap0, ap1, bp0, bp1 from node_ab_values (forward pass results)
+                            if node_id in node_ab_values:
+                                ap0 = node_ab_values[node_id]['ap0'].to(device)
+                                ap1 = node_ab_values[node_id]['ap1'].to(device)
+                                bp0 = node_ab_values[node_id]['bp0'].to(device)
+                                bp1 = node_ab_values[node_id]['bp1'].to(device)
+                                
+                                # These are [B] tensors, display as arrays
+                                ap0_arr = ap0.cpu().numpy()
+                                ap1_arr = ap1.cpu().numpy()
+                                bp0_arr = bp0.cpu().numpy()
+                                bp1_arr = bp1.cpu().numpy()
+                                
+                                debug_file.write(f"ap0 (shape {ap0.shape}): ")
+                                if len(ap0_arr) > 5:
+                                    debug_file.write(f"[First 5]: {ap0_arr[:5]}\n")
+                                else:
+                                    debug_file.write(f"{ap0_arr}\n")
+                                
+                                debug_file.write(f"ap1 (shape {ap1.shape}): ")
+                                if len(ap1_arr) > 5:
+                                    debug_file.write(f"[First 5]: {ap1_arr[:5]}\n")
+                                else:
+                                    debug_file.write(f"{ap1_arr}\n")
+                                
+                                debug_file.write(f"bp0 (shape {bp0.shape}): ")
+                                if len(bp0_arr) > 5:
+                                    debug_file.write(f"[First 5]: {bp0_arr[:5]}\n")
+                                else:
+                                    debug_file.write(f"{bp0_arr}\n")
+                                
+                                debug_file.write(f"bp1 (shape {bp1.shape}): ")
+                                if len(bp1_arr) > 5:
+                                    debug_file.write(f"[First 5]: {bp1_arr[:5]}\n")
+                                else:
+                                    debug_file.write(f"{bp1_arr}\n")
+                            else:
+                                debug_file.write(f"Forward pass values not available for this node\n")
+                            
+                            # Also show candidates and softmax weights for reference
+                            cand_list = model.candidates[node_index]
+                            debug_file.write(f"\nCandidates: {cand_list}\n")
+                            
+                            if node_id in softmax_w0_cache:
+                                s0 = softmax_w0_cache[node_id].cpu().numpy()
+                                s1 = softmax_w1_cache[node_id].cpu().numpy()
+                                
+                                debug_file.write(f"\nSoftmax weights (w0 and w1) for each candidate:\n")
+                                M_i = len(cand_list)
+                                for idx, cand_node in enumerate(cand_list):
+                                    debug_file.write(f"  Candidate {idx} (node {cand_node}):\n")
+                                    debug_file.write(f"    w0: [{s0[idx]:.6f}, {s0[idx + M_i]:.6f}]\n")
+                                    debug_file.write(f"    w1: [{s1[idx]:.6f}, {s1[idx + M_i]:.6f}]\n")
+                            else:
+                                debug_file.write(f"Softmax weights not computed yet\n")
+                        
+                        # Write m values related to this node
+                        debug_file.write(f"\nm values for node {node_id}:\n")
+                        debug_file.write("-" * 80 + "\n")
+                        
+                        # m[(node_id, q, i, j)] - node_id is the first node
+                        m_keys_first = sorted([k for k in m.keys() if k[0] == node_id])
+                        if m_keys_first:
+                            debug_file.write(f"m[(p={node_id}, q, i, j)] values:\n")
+                            for key in m_keys_first:
+                                val = m[key]
+                                val_str = f"{val.item():.6f}" if isinstance(val, torch.Tensor) else f"{val:.6f}"
+                                debug_file.write(f"  m[{key}] = {val_str}\n")
+                        
+                        # m[(r, node_id, i, j)] - node_id is the second node
+                        m_keys_second = sorted([k for k in m.keys() if k[1] == node_id])
+                        if m_keys_second:
+                            debug_file.write(f"m[(r, p={node_id}, i, j)] values:\n")
+                            for key in m_keys_second:
+                                val = m[key]
+                                val_str = f"{val.item():.6f}" if isinstance(val, torch.Tensor) else f"{val:.6f}"
+                                debug_file.write(f"  m[{key}] = {val_str}\n")
+                        
+                        if not m_keys_first and not m_keys_second:
+                            debug_file.write(f"  No m values computed for this node yet\n")
+                        
+                        debug_file.write("\n")
     
     # OUTSIDE torch.no_grad(): Loss accumulation needs gradients for bp0/bp1
     if profile_time:
