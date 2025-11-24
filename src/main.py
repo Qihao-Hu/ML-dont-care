@@ -180,7 +180,7 @@ if __name__ == "__main__":
     )
     
     # Patience mechanism for early stopping
-    patience = 100  # Increased patience for better convergence
+    patience = 200  # Increased patience for better convergence
     patience_counter = 0
     best_loss = float('inf')
     best_model_state = None

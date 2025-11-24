@@ -9,8 +9,15 @@ class LevelizedModel(nn.Module):
     - layers: list of nodes per layer
     - each node has two fanins (w0,w1) parameters (scores)
     """
-    def __init__(self, n_inputs=8, layers_config=[8, 8, 4]):
+    def __init__(self, n_inputs=8, layers_config=[8, 8, 4], seed=42):
         super().__init__()
+        
+        # Set random seed for reproducible initialization
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+        
         self.n_inputs = n_inputs
         # build levelized structure
         # level 0: primary inputs (0..n_inputs-1)
