@@ -11,6 +11,16 @@ import numpy as np
 from model import LevelizedModel
 from backprop_dc import backprop_dc
 
+# Try to import matplotlib, but make it optional
+try:
+    import matplotlib
+    matplotlib.use('Agg')  # Use non-interactive backend
+    import matplotlib.pyplot as plt
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+    print("Warning: matplotlib not available. Plotting will be disabled.")
+
 
 def compare_predictions(expected, predicted):
     """
@@ -118,12 +128,14 @@ def write_timing_summary(f, timing_stats, num_steps):
 
 if __name__ == "__main__":
     # Parse command line arguments
-    if len(sys.argv) < 6 or len(sys.argv) > 7:
-        print("Usage: python main.py <n_inputs> <n_hidden_layers> <hidden_layer_size> <train_data_file> <test_data_file> [learning_rate]")
+    if len(sys.argv) < 6 or len(sys.argv) > 8:
+        print("Usage: python main.py <n_inputs> <n_hidden_layers> <hidden_layer_size> <train_data_file> <test_data_file> [learning_rate] [enable_plot]")
         print("Example: python main.py 6 10 20 dataset/3bit_Multiplier.txt dataset/3bit_Multiplier.txt")
         print("         python main.py 6 10 20 dataset/3bit_Multiplier.txt dataset/3bit_Multiplier.txt 0.05")
+        print("         python main.py 6 10 20 dataset/3bit_Multiplier.txt dataset/3bit_Multiplier.txt 0.05 True")
         print("  This creates: n_inputs=6, layers_config=[20, 20, ..., 20, 6]")
         print("  Default learning rate: 0.08")
+        print("  Default enable_plot: False")
         sys.exit(1)
     
     try:
@@ -132,7 +144,8 @@ if __name__ == "__main__":
         hidden_layer_size = int(sys.argv[3])
         train_data_file = sys.argv[4]
         test_data_file = sys.argv[5]
-        learning_rate = float(sys.argv[6]) if len(sys.argv) == 7 else 0.08  # Default LR
+        learning_rate = float(sys.argv[6]) if len(sys.argv) >= 7 else 0.08  # Default LR
+        enable_plot = sys.argv[7].lower() in ['true', '1', 'yes'] if len(sys.argv) == 8 else False  # Default: no plot
         
         # Build layers_config: n_hidden_layers of hidden_layer_size, then n_inputs as output layer
         layers_config = [hidden_layer_size] * n_hidden_layers + [n_inputs]
@@ -143,6 +156,7 @@ if __name__ == "__main__":
         print(f"  learning_rate = {learning_rate}")
         print(f"  train_data_file = {train_data_file}")
         print(f"  test_data_file = {test_data_file}")
+        print(f"  enable_plot = {enable_plot}")
         
     except ValueError:
         print("Error: n_inputs, n_hidden_layers, and hidden_layer_size must be integers")
@@ -183,7 +197,15 @@ if __name__ == "__main__":
     patience = 200  # Increased patience for better convergence
     patience_counter = 0
     best_loss = float('inf')
+    best_loss_accuracy = 0  # track highest accuracy achieved at the best loss
     best_model_state = None
+    
+    # Track best accuracy independently
+    best_accuracy = 0
+    best_accuracy_step = 0
+    best_accuracy_loss = float('inf')
+    best_accuracy_bit_dist = None  # Distribution of bit errors at best accuracy
+    best_accuracy_model_state = None
     
     # Record start time
     start_time = time.time()
@@ -195,6 +217,9 @@ if __name__ == "__main__":
         'backward_times': [],
         'optimizer_times': []
     }
+    
+    # Accuracy tracking for plotting
+    accuracy_history = []  # List of (step, correct_count, total_count)
     
     # Open results file in append mode
     with open("results.txt", "a") as f:
@@ -211,6 +236,7 @@ if __name__ == "__main__":
         final_step = 0
         stop_reason = ""
         
+        loss_tol = 1e-12  # tolerance when comparing floating losses
         for step in range(10000):
             # === TIME PROFILING: Forward Pass ===
             forward_start = time.time()
@@ -219,11 +245,7 @@ if __name__ == "__main__":
 
             # === TIME PROFILING: Backprop Loss Calculation ===
             backprop_start = time.time()
-            profile_this_step = (step % 100 == 0)  # Profile every 100 steps
-            if profile_this_step:
-                loss, backprop_profile = backprop_dc(model, node_ab_values, train_output_data, profile_time=True)
-            else:
-                loss = backprop_dc(model, node_ab_values, train_output_data, profile_time=False)
+            loss = backprop_dc(model, node_ab_values, train_output_data, profile_time=False)
             backprop_time = time.time() - backprop_start
 
             # === TIME PROFILING: Backward Pass ===
@@ -253,51 +275,142 @@ if __name__ == "__main__":
 
             current_loss = loss.item()
             
-            # Update best model if current loss is better
-            if current_loss < best_loss:
+            # Calculate accuracy on TEST data (not training data)
+            with torch.no_grad():
+                # Evaluate on test set
+                test_node_ab_values = model(test_input_data)
+                test_outputs = []
+                for q in model.layers[-1]:
+                    test_outputs.append(test_node_ab_values[q]["out"])
+                test_outputs = torch.stack(test_outputs, dim=1)
+                test_pred_bits = (test_outputs > 0).int()
+                correct_count = (test_pred_bits == test_output_data.int()).all(dim=1).sum().item()
+                total_count = len(test_input_data)
+            
+            # Record accuracy for plotting
+            accuracy_history.append((step, correct_count, total_count))
+            
+            # Track best accuracy independently with bit error distribution
+            update_best = False
+            if correct_count > best_accuracy:
+                # New best accuracy
+                update_best = True
+            elif correct_count == best_accuracy and correct_count < total_count:
+                # Same accuracy, compare bit error distribution
+                # Calculate bit error distribution for incorrect samples
+                incorrect_mask = ~(test_pred_bits == test_output_data.int()).all(dim=1)
+                if incorrect_mask.sum() > 0:
+                    incorrect_preds = test_pred_bits[incorrect_mask]
+                    incorrect_expected = test_output_data.int()[incorrect_mask]
+                    bit_errors = (incorrect_preds != incorrect_expected).sum(dim=1)  # errors per sample
+                    
+                    # Count distribution: how many samples with 1-bit error, 2-bit error, etc.
+                    current_bit_dist = []
+                    max_possible_bits = test_output_data.shape[1]
+                    for i in range(1, max_possible_bits + 1):
+                        count_i = (bit_errors == i).sum().item()
+                        current_bit_dist.append(count_i)
+                    
+                    # Compare with best_accuracy_bit_dist (prefer fewer low-bit errors)
+                    if best_accuracy_bit_dist is None:
+                        update_best = True
+                    else:
+                        # Lexicographic comparison: prefer fewer 1-bit errors, then fewer 2-bit errors, etc.
+                        for i in range(len(current_bit_dist)):
+                            if current_bit_dist[i] < best_accuracy_bit_dist[i]:
+                                update_best = True
+                                break
+                            elif current_bit_dist[i] > best_accuracy_bit_dist[i]:
+                                break
+            
+            if update_best:
+                best_accuracy = correct_count
+                best_accuracy_step = step
+                best_accuracy_loss = current_loss
+                
+                # Calculate and save bit error distribution
+                if correct_count < total_count:
+                    incorrect_mask = ~(test_pred_bits == test_output_data.int()).all(dim=1)
+                    incorrect_preds = test_pred_bits[incorrect_mask]
+                    incorrect_expected = test_output_data.int()[incorrect_mask]
+                    bit_errors = (incorrect_preds != incorrect_expected).sum(dim=1)
+                    best_accuracy_bit_dist = []
+                    max_possible_bits = test_output_data.shape[1]
+                    for i in range(1, max_possible_bits + 1):
+                        count_i = (bit_errors == i).sum().item()
+                        best_accuracy_bit_dist.append(count_i)
+                else:
+                    best_accuracy_bit_dist = []  # Perfect accuracy, no errors
+                
+                # Save model state at best accuracy
+                best_accuracy_model_state = {
+                    'param_w0': [p.detach().clone() for p in model.param_w0],
+                    'param_w1': [p.detach().clone() for p in model.param_w1],
+                    'step': step,
+                    'accuracy': correct_count,
+                    'loss': current_loss,
+                    'bit_dist': best_accuracy_bit_dist.copy() if best_accuracy_bit_dist else []
+                }
+            
+            # Check if 100% accuracy reached for the first time
+            if correct_count == total_count:
+                final_step = step
+                early_stop = True
+                stop_reason = "perfect_accuracy"
+                end_time = time.time()
+                training_time = end_time - start_time
+                
+                # Best accuracy model is already saved above
                 best_loss = current_loss
+                best_loss_accuracy = correct_count
+                best_model_state = {
+                    'param_w0': [p.detach().clone() for p in model.param_w0],
+                    'param_w1': [p.detach().clone() for p in model.param_w1],
+                    'step': step,
+                    'accuracy': correct_count
+                }
+                
+                current_lr = optimizer.param_groups[0]['lr']
+                f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | LR = {current_lr:.6f} | Correct: {correct_count}/{total_count} | Perfect accuracy!\n")
+                f.write(f"\n=== Early Stopping: Perfect Accuracy Reached ===\n")
+                f.write(f"Final Step: {step:04d}\n")
+                f.write(f"Final Loss: {current_loss:.6f}\n")
+                f.write(f"Accuracy: 100% ({correct_count}/{total_count})\n")
+                f.write(f"Training Time: {training_time:.2f} seconds\n")
+                f.write(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
+                
+                # Write timing statistics
+                write_timing_summary(f, timing_stats, step + 1)
+                
+                f.flush()
+                break
+            
+            # Update best model if current loss improves or matches with better accuracy
+            loss_improved = current_loss + loss_tol < best_loss
+            loss_tied_better_acc = abs(current_loss - best_loss) <= loss_tol and correct_count > best_loss_accuracy
+
+            if loss_improved or loss_tied_better_acc:
+                if loss_improved:
+                    best_loss = current_loss
+                best_loss_accuracy = correct_count
                 # Save the best model state (deep copy)
                 best_model_state = {
                     'param_w0': [p.detach().clone() for p in model.param_w0],
                     'param_w1': [p.detach().clone() for p in model.param_w1],
-                    'step': step
+                    'step': step,
+                    'accuracy': correct_count
                 }
                 patience_counter = 0  # Reset patience counter
                 current_lr = optimizer.param_groups[0]['lr']
-                f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | LR = {current_lr:.6f} | New best! (patience reset)\n")
-                
-                # Write timing information for this step
-                if profile_this_step:
-                    f.write(f"  Timing: Forward={forward_time*1000:.2f}ms, Backprop={backprop_time*1000:.2f}ms, "
-                           f"Backward={backward_time*1000:.2f}ms, Optimizer={optimizer_time*1000:.2f}ms\n")
-                    f.write(f"  Backprop breakdown: Init={backprop_profile['initialization']*1000:.2f}ms, "
-                           f"OutputLoss={backprop_profile['output_layer_loss']*1000:.2f}ms, "
-                           f"Loop1(m_pq)={backprop_profile['loop1_m_pq_calculation']*1000:.2f}ms, "
-                           f"Loop2(g_p)={backprop_profile['loop2_g_p_calculation']*1000:.2f}ms, "
-                           f"Loop3(f_p)={backprop_profile['loop3_f_p_calculation']*1000:.2f}ms, "
-                           f"Loop4(m_rp)={backprop_profile['loop4_m_rp_calculation']*1000:.2f}ms, "
-                           f"LossAccum={backprop_profile['loss_accumulation']*1000:.2f}ms\n")
-                
+                note = "New best loss" if loss_improved else "Best loss tie, better accuracy"
+                f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | LR = {current_lr:.6f} | Correct: {correct_count}/{total_count} | {note}! (patience reset)\n")
                 f.flush()
             else:
                 # Loss did not improve
                 patience_counter += 1
                 current_lr = optimizer.param_groups[0]['lr']
                 if step % 10 == 0:  # Write every 10 steps to reduce file size
-                    f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | LR = {current_lr:.6f} | Patience: {patience_counter}/{patience}\n")
-                    
-                    # Write timing information every 100 steps
-                    if profile_this_step:
-                        f.write(f"  Timing: Forward={forward_time*1000:.2f}ms, Backprop={backprop_time*1000:.2f}ms, "
-                               f"Backward={backward_time*1000:.2f}ms, Optimizer={optimizer_time*1000:.2f}ms\n")
-                        f.write(f"  Backprop breakdown: Init={backprop_profile['initialization']*1000:.2f}ms, "
-                               f"OutputLoss={backprop_profile['output_layer_loss']*1000:.2f}ms, "
-                               f"Loop1(m_pq)={backprop_profile['loop1_m_pq_calculation']*1000:.2f}ms, "
-                               f"Loop2(g_p)={backprop_profile['loop2_g_p_calculation']*1000:.2f}ms, "
-                               f"Loop3(f_p)={backprop_profile['loop3_f_p_calculation']*1000:.2f}ms, "
-                               f"Loop4(m_rp)={backprop_profile['loop4_m_rp_calculation']*1000:.2f}ms, "
-                               f"LossAccum={backprop_profile['loss_accumulation']*1000:.2f}ms\n")
-                    
+                    f.write(f"Step {step:04d} | Loss = {current_loss:.6f} | LR = {current_lr:.6f} | Correct: {correct_count}/{total_count} | Patience: {patience_counter}/{patience}\n")
                     f.flush()
             
             # Check patience early stopping
@@ -312,6 +425,8 @@ if __name__ == "__main__":
                 f.write(f"Final Step: {step:04d}\n")
                 f.write(f"Current Loss: {current_loss:.6f}\n")
                 f.write(f"Best Loss: {best_loss:.6f} (at step {best_model_state['step']})\n")
+                f.write(f"Best Accuracy at Best Loss: {best_loss_accuracy}/{total_count} ({best_loss_accuracy/total_count*100:.2f}%)\n")
+                f.write(f"Maximum Accuracy Achieved: {best_accuracy}/{total_count} ({best_accuracy/total_count*100:.2f}%) at step {best_accuracy_step} (loss={best_accuracy_loss:.6f})\n")
                 f.write(f"Training Time: {training_time:.2f} seconds\n")
                 f.write(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
                 
@@ -333,6 +448,8 @@ if __name__ == "__main__":
                 f.write(f"Final Step: {step:04d}\n")
                 f.write(f"Final Loss: {loss.item():.6f}\n")
                 f.write(f"Best Loss: {best_loss:.6f} (at step {best_model_state['step']})\n")
+                f.write(f"Best Accuracy at Best Loss: {best_loss_accuracy}/{total_count} ({best_loss_accuracy/total_count*100:.2f}%)\n")
+                f.write(f"Maximum Accuracy Achieved: {best_accuracy}/{total_count} ({best_accuracy/total_count*100:.2f}%) at step {best_accuracy_step} (loss={best_accuracy_loss:.6f})\n")
                 f.write(f"Training Time: {training_time:.2f} seconds\n")
                 f.write(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
                 
@@ -350,6 +467,8 @@ if __name__ == "__main__":
             f.write(f"\n=== Training Completed (Max Steps Reached) ===\n")
             f.write(f"Final Step: {final_step:04d}\n")
             f.write(f"Best Loss: {best_loss:.6f} (at step {best_model_state['step']})\n")
+            f.write(f"Best Accuracy at Best Loss: {best_loss_accuracy}/{total_count} ({best_loss_accuracy/total_count*100:.2f}%)\n")
+            f.write(f"Maximum Accuracy Achieved: {best_accuracy}/{total_count} ({best_accuracy/total_count*100:.2f}%) at step {best_accuracy_step} (loss={best_accuracy_loss:.6f})\n")
             f.write(f"Training Time: {training_time:.2f} seconds\n")
             f.write(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
             
@@ -358,34 +477,48 @@ if __name__ == "__main__":
             
             f.flush()
     
-    # Restore best model parameters
-    if best_model_state is not None:
-        print(f"\nRestoring best model from step {best_model_state['step']} with loss {best_loss:.6f}")
+    # Restore best accuracy model parameters
+    if best_accuracy_model_state is not None:
+        print(f"\nRestoring best accuracy model from step {best_accuracy_model_state['step']}")
+        print(f"  Accuracy: {best_accuracy_model_state['accuracy']}/{total_count} ({best_accuracy_model_state['accuracy']/total_count*100:.2f}%)")
+        print(f"  Loss: {best_accuracy_model_state['loss']:.6f}")
+        if best_accuracy_model_state.get('bit_dist'):
+            print(f"  Bit error distribution (for incorrect samples):")
+            for i, count in enumerate(best_accuracy_model_state['bit_dist'], 1):
+                if count > 0:
+                    print(f"    {i}-bit errors: {count} samples")
         for i, p in enumerate(model.param_w0):
-            p.data.copy_(best_model_state['param_w0'][i])
+            p.data.copy_(best_accuracy_model_state['param_w0'][i])
         for i, p in enumerate(model.param_w1):
-            p.data.copy_(best_model_state['param_w1'][i])
+            p.data.copy_(best_accuracy_model_state['param_w1'][i])
         
         # Save best parameters to file
         with open("best_parameters.txt", "w") as f:
-            f.write(f"=== Best Model Parameters ===\n")
+            f.write(f"=== Best Accuracy Model Parameters ===\n")
             f.write(f"Network Architecture: {layers_config}\n")
             f.write(f"Number of Inputs: {n_inputs}\n")
+            f.write(f"Best Accuracy: {best_accuracy_model_state['accuracy']}/{total_count} ({best_accuracy_model_state['accuracy']/total_count*100:.2f}%)\n")
+            f.write(f"Best Accuracy Step: {best_accuracy_model_state['step']}\n")
+            f.write(f"Loss at Best Accuracy: {best_accuracy_model_state['loss']:.6f}\n")
+            if best_accuracy_model_state.get('bit_dist'):
+                f.write(f"Bit error distribution (for incorrect samples):\n")
+                for i, count in enumerate(best_accuracy_model_state['bit_dist'], 1):
+                    if count > 0:
+                        f.write(f"  {i}-bit errors: {count} samples\n")
             f.write(f"Best Loss: {best_loss:.6f}\n")
-            f.write(f"Best Step: {best_model_state['step']}\n")
             f.write(f"Stop Reason: {stop_reason}\n\n")
             
             f.write("=== param_w0 (weights for input 0) ===\n")
-            for i, w0 in enumerate(best_model_state['param_w0']):
+            for i, w0 in enumerate(best_accuracy_model_state['param_w0']):
                 f.write(f"Layer {i} w0:\n")
                 f.write(f"{w0.cpu().numpy()}\n\n")
             
             f.write("=== param_w1 (weights for input 1) ===\n")
-            for i, w1 in enumerate(best_model_state['param_w1']):
+            for i, w1 in enumerate(best_accuracy_model_state['param_w1']):
                 f.write(f"Layer {i} w1:\n")
                 f.write(f"{w1.cpu().numpy()}\n\n")
         
-        print("Best parameters saved to best_parameters.txt")
+        print("Best accuracy model parameters saved to best_parameters.txt")
     
     if stop_reason == "patience":
         print(f"Training stopped due to patience ({patience}) at step {final_step}")
@@ -454,5 +587,33 @@ if __name__ == "__main__":
                 print(f"  1 bit different: {count} samples ({percentage:.2f}%)")
             else:
                 print(f"  {num_diff} bits different: {count} samples ({percentage:.2f}%)")
+    
+    # Generate accuracy plot if enabled
+    if enable_plot and len(accuracy_history) > 0:
+        if not MATPLOTLIB_AVAILABLE:
+            print("\nWarning: Plotting requested but matplotlib is not installed.")
+            print("To enable plotting, install matplotlib: pip install matplotlib")
+        else:
+            steps = [item[0] for item in accuracy_history]
+            correctness = [item[1] for item in accuracy_history]
+            total_samples = accuracy_history[0][2]
+            correctness_percent = [(c / total_samples * 100) for c in correctness]
+            
+            plt.figure(figsize=(10, 6))
+            plt.plot(steps, correctness_percent, linewidth=2, color='blue')
+            plt.xlabel('Step', fontsize=12)
+            plt.ylabel('Accuracy (%)', fontsize=12)
+            plt.title(f'Training Accuracy Progress (Total Samples: {total_samples})', fontsize=14)
+            plt.grid(True, alpha=0.3)
+            plt.axhline(y=100, color='green', linestyle='--', linewidth=1, label='Perfect Accuracy (100%)')
+            plt.ylim(0, 105)
+            plt.legend()
+            plt.tight_layout()
+            
+            # Save plot
+            plot_filename = 'accuracy_plot.png'
+            plt.savefig(plot_filename, dpi=150)
+            print(f"\nAccuracy plot saved to {plot_filename}")
+            plt.close()
     
     print("Test completed.")
