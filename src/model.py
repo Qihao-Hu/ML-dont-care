@@ -81,76 +81,56 @@ class LevelizedModel(nn.Module):
         # iterate layers
         for layer_idx, level_nodes in enumerate(self.layers):
             is_last_layer = (layer_idx == len(self.layers) - 1)
-            
-            for node in level_nodes:
-                cand = self.candidates[param_idx]
-                w0 = self.param_w0[param_idx]  # ωp,0 - full 2*M_i vector
-                w1 = self.param_w1[param_idx]  # ωp,1 - full 2*M_i vector
-                
-                # According to paper: parameters have length 2*M_i, same as yi
-                M_i = len(cand)
-                
-                # Collect candidate node values x = (x0, x1, ..., x_{M_i-1})
-                candidate_values = []
-                for cand_idx in cand:
-                    candidate_values.append(node_vals[cand_idx])  # [B]              
-                x = torch.stack(candidate_values, dim=0)  # [M_i, B]
-                 
-                # Construct yi according to paper definition:
-                # yi = (yi_0, yi_1, ..., yi_{2M_i-1}) where:
-                # yi_k = x_k for k < M_i (original values)
-                # yi_k = -x_{k-M_i} for k >= M_i (negated values)
-                yi = torch.cat([x, -x], dim=0)  # [2*M_i, B]
+            num_nodes_layer = len(level_nodes)
 
-                # Apply paper formulas directly:
-                # ap,0 = yi[argmax(ωp,0)] - select from yi using full ωp,0
-                # bp,0 = yi · softmax(ωp,0) - weighted combination using full ωp,0
-                # ap,1 = yi[argmax(ωp,1)] - select from yi using full ωp,1
-                # bp,1 = yi · softmax(ωp,1) - weighted combination using full ωp,1
-                
-                # Compute softmax over full 2*M_i vectors
-                softmax_w0 = torch.softmax(w0, dim=0)  # [2*M_i]
-                softmax_w1 = torch.softmax(w1, dim=0)  # [2*M_i]
-                
-                # Compute argmax over full 2*M_i vectors
-                argmax_w0 = int(torch.argmax(w0).item())
-                argmax_w1 = int(torch.argmax(w1).item())
-                
-                # Apply formulas
-                ap0 = yi[argmax_w0]  # [B] - selected from yi using ωp,0
-                bp0 = torch.sum(yi * softmax_w0.unsqueeze(1), dim=0)  # [B] - weighted yi using ωp,0
-                ap1 = yi[argmax_w1]  # [B] - selected from yi using ωp,1  
-                bp1 = torch.sum(yi * softmax_w1.unsqueeze(1), dim=0)  # [B] - weighted yi using ωp,1
-                
-                # Store results
-                softmax_b.append((softmax_w0, softmax_w1))
-                argmax_idx.append((argmax_w0, argmax_w1))
-                
-                # Store ap0, ap1, bp0, bp1 values for this node
+            # Candidates are identical for every node in the same layer
+            cand = self.candidates[param_idx]
+            M_i = len(cand)
+
+            # Collect candidate node values once per layer
+            x = torch.stack([node_vals[cand_idx] for cand_idx in cand], dim=0)  # [M_i, B]
+            yi = torch.cat([x, -x], dim=0)  # [2*M_i, B]
+
+            # Stack parameters for all nodes in this layer
+            w0_layer = torch.stack([self.param_w0[param_idx + i] for i in range(num_nodes_layer)], dim=0)  # [P, 2*M_i]
+            w1_layer = torch.stack([self.param_w1[param_idx + i] for i in range(num_nodes_layer)], dim=0)  # [P, 2*M_i]
+
+            # Softmax over each node's weights
+            softmax_w0 = torch.softmax(w0_layer, dim=1)  # [P, 2*M_i]
+            softmax_w1 = torch.softmax(w1_layer, dim=1)  # [P, 2*M_i]
+
+            # Argmax indices for selecting from yi
+            argmax_w0 = torch.argmax(w0_layer, dim=1)  # [P]
+            argmax_w1 = torch.argmax(w1_layer, dim=1)  # [P]
+
+            # Apply formulas in batch
+            ap0 = yi[argmax_w0]  # [P, B]
+            ap1 = yi[argmax_w1]  # [P, B]
+            yi_expanded = yi.unsqueeze(0)  # [1, 2*M_i, B]
+            bp0 = torch.sum(yi_expanded * softmax_w0.unsqueeze(-1), dim=1)  # [P, B]
+            bp1 = torch.sum(yi_expanded * softmax_w1.unsqueeze(-1), dim=1)  # [P, B]
+
+            if is_last_layer:
+                out_layer = ap0
+            else:
+                pos_mask = (ap0 > 0) & (ap1 > 0)
+                out_layer = torch.where(pos_mask, torch.ones_like(ap0), -torch.ones_like(ap0))
+
+            # Store per-node results back into dicts (keeps interface unchanged)
+            for local_idx, node in enumerate(level_nodes):
+                softmax_b.append((softmax_w0[local_idx], softmax_w1[local_idx]))
+                argmax_idx.append((int(argmax_w0[local_idx].item()), int(argmax_w1[local_idx].item())))
+
                 node_ab_values[node] = {
-                    'ap0': ap0,
-                    'ap1': ap1,
-                    'bp0': bp0,
-                    'bp1': bp1
+                    'ap0': ap0[local_idx],
+                    'ap1': ap1[local_idx],
+                    'bp0': bp0[local_idx],
+                    'bp1': bp1[local_idx],
+                    'out': out_layer[local_idx]
                 }
-                
-                # For last layer (output layer): directly use ap0
-                # For other layers: use AND gate with ap0 and ap1
-                if is_last_layer:
-                    out = ap0  # Output layer: directly use ap0
-                else:
-                    # Use ap0 and ap1 as the two fanins for the AND gate
-                    in0 = ap0  # First fanin: argmax selection from ωp,0
-                    in1 = ap1  # Second fanin: argmax selection from ωp,1
-                    # AND in ±1 domain: +1 if both +1 else -1
-                    out = torch.where((in0 > 0) & (in1 > 0), torch.tensor(1.0, device=device), torch.tensor(-1.0, device=device))
-                
-                node_vals[node] = out
-                
-                # Update the stored values to include output
-                node_ab_values[node]['out'] = out
-                
-                param_idx += 1
+                node_vals[node] = out_layer[local_idx]
+
+            param_idx += num_nodes_layer
             # print("node_ab_values after layer", node_ab_values.keys())
         # build outputs
         outputs = []
