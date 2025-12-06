@@ -1,0 +1,712 @@
+=== Training Session Started ===
+Device: cuda
+Network Architecture: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 8]
+Number of Inputs: 8
+Learning Rate: 0.1 (initial)
+Training samples: 52
+Patience: 200
+Step 0000 | Loss = 50.088673 | LR = 0.100000 | Correct: 0/52 | New best loss! (patience reset)
+Step 0001 | Loss = 48.436398 | LR = 0.100000 | Correct: 0/52 | New best loss! (patience reset)
+Step 0002 | Loss = 47.748554 | LR = 0.100000 | Correct: 1/52 | New best loss! (patience reset)
+Step 0003 | Loss = 47.464783 | LR = 0.100000 | Correct: 2/52 | New best loss! (patience reset)
+Step 0004 | Loss = 46.581451 | LR = 0.100000 | Correct: 1/52 | New best loss! (patience reset)
+Step 0005 | Loss = 45.730442 | LR = 0.100000 | Correct: 6/52 | New best loss! (patience reset)
+Step 0006 | Loss = 45.034302 | LR = 0.100000 | Correct: 5/52 | New best loss! (patience reset)
+Step 0008 | Loss = 44.037117 | LR = 0.100000 | Correct: 3/52 | New best loss! (patience reset)
+Step 0010 | Loss = 45.366470 | LR = 0.100000 | Correct: 3/52 | Patience: 2/200
+Step 0020 | Loss = 48.301384 | LR = 0.100000 | Correct: 5/52 | Patience: 12/200
+Step 0030 | Loss = 49.223892 | LR = 0.100000 | Correct: 8/52 | Patience: 22/200
+Step 0040 | Loss = 47.139698 | LR = 0.100000 | Correct: 13/52 | Patience: 32/200
+Step 0047 | Loss = 43.683327 | LR = 0.100000 | Correct: 17/52 | New best loss! (patience reset)
+Step 0050 | Loss = 43.672962 | LR = 0.100000 | Correct: 14/52 | New best loss! (patience reset)
+Step 0053 | Loss = 43.356186 | LR = 0.100000 | Correct: 18/52 | New best loss! (patience reset)
+Step 0059 | Loss = 42.713997 | LR = 0.100000 | Correct: 18/52 | New best loss! (patience reset)
+Step 0060 | Loss = 45.213104 | LR = 0.100000 | Correct: 21/52 | Patience: 1/200
+Step 0061 | Loss = 42.574078 | LR = 0.100000 | Correct: 21/52 | New best loss! (patience reset)
+Step 0062 | Loss = 41.598003 | LR = 0.100000 | Correct: 21/52 | New best loss! (patience reset)
+Step 0064 | Loss = 40.614491 | LR = 0.100000 | Correct: 21/52 | New best loss! (patience reset)
+Step 0065 | Loss = 39.629833 | LR = 0.100000 | Correct: 18/52 | New best loss! (patience reset)
+Step 0066 | Loss = 39.460205 | LR = 0.100000 | Correct: 14/52 | New best loss! (patience reset)
+Step 0070 | Loss = 39.941860 | LR = 0.100000 | Correct: 22/52 | Patience: 4/200
+Step 0071 | Loss = 37.982906 | LR = 0.100000 | Correct: 22/52 | New best loss! (patience reset)
+Step 0074 | Loss = 37.824322 | LR = 0.100000 | Correct: 21/52 | New best loss! (patience reset)
+Step 0075 | Loss = 37.600487 | LR = 0.100000 | Correct: 21/52 | New best loss! (patience reset)
+Step 0076 | Loss = 37.192959 | LR = 0.100000 | Correct: 24/52 | New best loss! (patience reset)
+Step 0077 | Loss = 37.133385 | LR = 0.100000 | Correct: 24/52 | New best loss! (patience reset)
+Step 0078 | Loss = 36.518875 | LR = 0.100000 | Correct: 24/52 | New best loss! (patience reset)
+Step 0079 | Loss = 36.114147 | LR = 0.100000 | Correct: 23/52 | New best loss! (patience reset)
+Step 0080 | Loss = 35.869350 | LR = 0.100000 | Correct: 24/52 | New best loss! (patience reset)
+Step 0085 | Loss = 34.413696 | LR = 0.100000 | Correct: 27/52 | New best loss! (patience reset)
+Step 0087 | Loss = 34.084766 | LR = 0.100000 | Correct: 27/52 | New best loss! (patience reset)
+Step 0088 | Loss = 33.873646 | LR = 0.100000 | Correct: 26/52 | New best loss! (patience reset)
+Step 0090 | Loss = 33.463898 | LR = 0.100000 | Correct: 26/52 | New best loss! (patience reset)
+Step 0092 | Loss = 32.969452 | LR = 0.100000 | Correct: 26/52 | New best loss! (patience reset)
+Step 0093 | Loss = 32.555000 | LR = 0.100000 | Correct: 28/52 | New best loss! (patience reset)
+Step 0095 | Loss = 32.290619 | LR = 0.100000 | Correct: 28/52 | New best loss! (patience reset)
+Step 0100 | Loss = 32.772045 | LR = 0.100000 | Correct: 27/52 | Patience: 5/200
+Step 0101 | Loss = 31.998125 | LR = 0.100000 | Correct: 27/52 | New best loss! (patience reset)
+Step 0110 | Loss = 34.546967 | LR = 0.100000 | Correct: 24/52 | Patience: 9/200
+Step 0120 | Loss = 34.516777 | LR = 0.100000 | Correct: 25/52 | Patience: 19/200
+Step 0130 | Loss = 33.495148 | LR = 0.100000 | Correct: 28/52 | Patience: 29/200
+Step 0132 | Loss = 31.911709 | LR = 0.100000 | Correct: 24/52 | New best loss! (patience reset)
+Step 0134 | Loss = 31.669048 | LR = 0.100000 | Correct: 25/52 | New best loss! (patience reset)
+Step 0136 | Loss = 30.140356 | LR = 0.100000 | Correct: 28/52 | New best loss! (patience reset)
+Step 0140 | Loss = 30.178837 | LR = 0.100000 | Correct: 27/52 | Patience: 4/200
+Step 0150 | Loss = 38.526894 | LR = 0.100000 | Correct: 27/52 | Patience: 14/200
+Step 0160 | Loss = 36.815201 | LR = 0.100000 | Correct: 28/52 | Patience: 24/200
+Step 0170 | Loss = 32.643753 | LR = 0.100000 | Correct: 31/52 | Patience: 34/200
+Step 0180 | Loss = 28.778826 | LR = 0.100000 | Correct: 31/52 | New best loss! (patience reset)
+Step 0190 | Loss = 32.712872 | LR = 0.100000 | Correct: 30/52 | Patience: 10/200
+Step 0200 | Loss = 31.614325 | LR = 0.100000 | Correct: 29/52 | Patience: 20/200
+Step 0210 | Loss = 36.998390 | LR = 0.100000 | Correct: 33/52 | Patience: 30/200
+Step 0220 | Loss = 34.736183 | LR = 0.100000 | Correct: 32/52 | Patience: 40/200
+Step 0230 | Loss = 39.059708 | LR = 0.100000 | Correct: 35/52 | Patience: 50/200
+Step 0240 | Loss = 35.067108 | LR = 0.050000 | Correct: 38/52 | Patience: 60/200
+Step 0250 | Loss = 35.970451 | LR = 0.050000 | Correct: 38/52 | Patience: 70/200
+Step 0260 | Loss = 31.034235 | LR = 0.050000 | Correct: 40/52 | Patience: 80/200
+Step 0266 | Loss = 28.543076 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0267 | Loss = 28.273781 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0268 | Loss = 27.875542 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0269 | Loss = 27.831720 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0270 | Loss = 28.757504 | LR = 0.050000 | Correct: 40/52 | Patience: 1/200
+Step 0271 | Loss = 27.028675 | LR = 0.050000 | Correct: 39/52 | New best loss! (patience reset)
+Step 0275 | Loss = 26.757242 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0277 | Loss = 25.471455 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0280 | Loss = 25.359064 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0281 | Loss = 25.045143 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0283 | Loss = 23.722298 | LR = 0.050000 | Correct: 39/52 | New best loss! (patience reset)
+Step 0288 | Loss = 23.592142 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0290 | Loss = 26.921219 | LR = 0.050000 | Correct: 40/52 | Patience: 2/200
+Step 0291 | Loss = 23.459692 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0293 | Loss = 23.296234 | LR = 0.050000 | Correct: 37/52 | New best loss! (patience reset)
+Step 0295 | Loss = 22.713293 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0300 | Loss = 22.476807 | LR = 0.050000 | Correct: 41/52 | New best loss! (patience reset)
+Step 0301 | Loss = 21.785841 | LR = 0.050000 | Correct: 41/52 | New best loss! (patience reset)
+Step 0306 | Loss = 21.777916 | LR = 0.050000 | Correct: 41/52 | New best loss! (patience reset)
+Step 0307 | Loss = 21.588631 | LR = 0.050000 | Correct: 39/52 | New best loss! (patience reset)
+Step 0309 | Loss = 21.419977 | LR = 0.050000 | Correct: 41/52 | New best loss! (patience reset)
+Step 0310 | Loss = 21.228119 | LR = 0.050000 | Correct: 41/52 | New best loss! (patience reset)
+Step 0314 | Loss = 20.720097 | LR = 0.050000 | Correct: 41/52 | New best loss! (patience reset)
+Step 0315 | Loss = 20.397751 | LR = 0.050000 | Correct: 40/52 | New best loss! (patience reset)
+Step 0320 | Loss = 20.227076 | LR = 0.050000 | Correct: 43/52 | New best loss! (patience reset)
+Step 0326 | Loss = 20.036289 | LR = 0.050000 | Correct: 43/52 | New best loss! (patience reset)
+Step 0328 | Loss = 19.801987 | LR = 0.050000 | Correct: 43/52 | New best loss! (patience reset)
+Step 0329 | Loss = 19.800180 | LR = 0.050000 | Correct: 43/52 | New best loss! (patience reset)
+Step 0330 | Loss = 19.647472 | LR = 0.050000 | Correct: 43/52 | New best loss! (patience reset)
+Step 0331 | Loss = 19.177101 | LR = 0.050000 | Correct: 41/52 | New best loss! (patience reset)
+Step 0338 | Loss = 18.637808 | LR = 0.050000 | Correct: 44/52 | New best loss! (patience reset)
+Step 0340 | Loss = 19.139570 | LR = 0.050000 | Correct: 42/52 | Patience: 2/200
+Step 0345 | Loss = 18.296440 | LR = 0.050000 | Correct: 44/52 | New best loss! (patience reset)
+Step 0349 | Loss = 17.803257 | LR = 0.050000 | Correct: 45/52 | New best loss! (patience reset)
+Step 0350 | Loss = 17.627348 | LR = 0.050000 | Correct: 45/52 | New best loss! (patience reset)
+Step 0354 | Loss = 17.213654 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0355 | Loss = 17.028625 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0356 | Loss = 16.834387 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0357 | Loss = 16.640886 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0358 | Loss = 16.573557 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0359 | Loss = 16.530327 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0360 | Loss = 16.301655 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0362 | Loss = 16.138042 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0364 | Loss = 16.034630 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0367 | Loss = 15.991715 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0368 | Loss = 15.748867 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0370 | Loss = 15.610786 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0371 | Loss = 15.571994 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0372 | Loss = 15.240445 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0378 | Loss = 15.111102 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0379 | Loss = 15.083479 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0380 | Loss = 14.939979 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0382 | Loss = 14.840406 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0386 | Loss = 14.742343 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0388 | Loss = 14.338548 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0390 | Loss = 14.380446 | LR = 0.050000 | Correct: 46/52 | Patience: 2/200
+Step 0400 | Loss = 14.602160 | LR = 0.050000 | Correct: 46/52 | Patience: 12/200
+Step 0407 | Loss = 14.203729 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0410 | Loss = 14.107110 | LR = 0.050000 | Correct: 45/52 | New best loss! (patience reset)
+Step 0412 | Loss = 13.931044 | LR = 0.050000 | Correct: 45/52 | New best loss! (patience reset)
+Step 0414 | Loss = 13.897866 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0415 | Loss = 13.746498 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0416 | Loss = 13.659438 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0417 | Loss = 13.636430 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0418 | Loss = 13.494410 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0420 | Loss = 13.486889 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0422 | Loss = 13.444398 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0423 | Loss = 13.429837 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0430 | Loss = 13.427462 | LR = 0.050000 | Correct: 45/52 | New best loss! (patience reset)
+Step 0440 | Loss = 13.994625 | LR = 0.050000 | Correct: 45/52 | Patience: 10/200
+Step 0450 | Loss = 13.458508 | LR = 0.050000 | Correct: 45/52 | Patience: 20/200
+Step 0452 | Loss = 13.370019 | LR = 0.050000 | Correct: 45/52 | New best loss! (patience reset)
+Step 0456 | Loss = 13.335725 | LR = 0.050000 | Correct: 47/52 | New best loss! (patience reset)
+Step 0458 | Loss = 12.993934 | LR = 0.050000 | Correct: 47/52 | New best loss! (patience reset)
+Step 0459 | Loss = 12.806847 | LR = 0.050000 | Correct: 47/52 | New best loss! (patience reset)
+Step 0460 | Loss = 12.223851 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0461 | Loss = 11.989687 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0462 | Loss = 11.861658 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0463 | Loss = 11.579819 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0464 | Loss = 11.501916 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0465 | Loss = 10.939061 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0466 | Loss = 10.801056 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0467 | Loss = 10.526935 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0468 | Loss = 10.429996 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0469 | Loss = 10.222979 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0470 | Loss = 10.148239 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0471 | Loss = 9.911756 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0472 | Loss = 9.844768 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0473 | Loss = 9.736531 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0474 | Loss = 9.593425 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0475 | Loss = 9.520890 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0476 | Loss = 9.370915 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0477 | Loss = 9.184927 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0478 | Loss = 9.025956 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0480 | Loss = 8.930400 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0481 | Loss = 8.887900 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0482 | Loss = 8.777043 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0483 | Loss = 8.746061 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0484 | Loss = 8.647303 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0485 | Loss = 8.629471 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0486 | Loss = 8.520266 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0487 | Loss = 8.432902 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0489 | Loss = 8.331030 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0490 | Loss = 8.378754 | LR = 0.050000 | Correct: 48/52 | Patience: 1/200
+Step 0491 | Loss = 7.939604 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0493 | Loss = 7.788826 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0495 | Loss = 7.710415 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0497 | Loss = 7.624296 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0499 | Loss = 7.580150 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0500 | Loss = 7.673425 | LR = 0.050000 | Correct: 48/52 | Patience: 1/200
+Step 0501 | Loss = 7.541586 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0504 | Loss = 7.538776 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0509 | Loss = 7.507953 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0510 | Loss = 7.526481 | LR = 0.050000 | Correct: 48/52 | Patience: 1/200
+Step 0511 | Loss = 7.399837 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0513 | Loss = 7.389719 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0515 | Loss = 7.301957 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0519 | Loss = 7.262657 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0520 | Loss = 7.265596 | LR = 0.050000 | Correct: 48/52 | Patience: 1/200
+Step 0521 | Loss = 7.246558 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0523 | Loss = 7.216661 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0525 | Loss = 7.193880 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0530 | Loss = 7.363606 | LR = 0.050000 | Correct: 48/52 | Patience: 5/200
+Step 0531 | Loss = 6.986749 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0535 | Loss = 6.939668 | LR = 0.050000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0540 | Loss = 6.857296 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0541 | Loss = 6.793599 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0542 | Loss = 6.793211 | LR = 0.050000 | Correct: 47/52 | New best loss! (patience reset)
+Step 0545 | Loss = 6.760756 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0550 | Loss = 8.521350 | LR = 0.050000 | Correct: 48/52 | Patience: 5/200
+Step 0552 | Loss = 6.689910 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0554 | Loss = 6.675627 | LR = 0.050000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0560 | Loss = 8.893430 | LR = 0.050000 | Correct: 48/52 | Patience: 6/200
+Step 0570 | Loss = 6.832936 | LR = 0.050000 | Correct: 46/52 | Patience: 16/200
+Step 0580 | Loss = 6.814600 | LR = 0.050000 | Correct: 46/52 | Patience: 26/200
+Step 0590 | Loss = 6.945388 | LR = 0.050000 | Correct: 48/52 | Patience: 36/200
+Step 0600 | Loss = 8.576626 | LR = 0.050000 | Correct: 48/52 | Patience: 46/200
+Step 0607 | Loss = 6.641417 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0610 | Loss = 6.711696 | LR = 0.025000 | Correct: 48/52 | Patience: 3/200
+Step 0611 | Loss = 6.629580 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0613 | Loss = 6.567095 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0619 | Loss = 6.534741 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0620 | Loss = 6.509615 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0627 | Loss = 6.501447 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0628 | Loss = 6.498527 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0630 | Loss = 8.418818 | LR = 0.025000 | Correct: 48/52 | Patience: 2/200
+Step 0640 | Loss = 6.474349 | LR = 0.025000 | Correct: 48/52 | New best loss! (patience reset)
+Step 0650 | Loss = 6.530427 | LR = 0.025000 | Correct: 46/52 | Patience: 10/200
+Step 0658 | Loss = 6.453530 | LR = 0.025000 | Correct: 46/52 | New best loss! (patience reset)
+Step 0660 | Loss = 6.561204 | LR = 0.025000 | Correct: 48/52 | Patience: 2/200
+Step 0670 | Loss = 6.499483 | LR = 0.025000 | Correct: 46/52 | Patience: 12/200
+Step 0680 | Loss = 9.701734 | LR = 0.025000 | Correct: 48/52 | Patience: 22/200
+Step 0690 | Loss = 8.254004 | LR = 0.025000 | Correct: 48/52 | Patience: 32/200
+Step 0700 | Loss = 8.260483 | LR = 0.025000 | Correct: 48/52 | Patience: 42/200
+Step 0710 | Loss = 8.261333 | LR = 0.012500 | Correct: 48/52 | Patience: 52/200
+Step 0720 | Loss = 8.197584 | LR = 0.012500 | Correct: 48/52 | Patience: 62/200
+Step 0721 | Loss = 6.435320 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0727 | Loss = 6.426847 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0729 | Loss = 6.421374 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0730 | Loss = 8.152346 | LR = 0.012500 | Correct: 48/52 | Patience: 1/200
+Step 0731 | Loss = 6.402172 | LR = 0.012500 | Correct: 47/52 | New best loss! (patience reset)
+Step 0739 | Loss = 6.397261 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0740 | Loss = 8.143201 | LR = 0.012500 | Correct: 47/52 | Patience: 1/200
+Step 0744 | Loss = 6.389980 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0747 | Loss = 6.381338 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0749 | Loss = 6.358657 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0750 | Loss = 8.120853 | LR = 0.012500 | Correct: 47/52 | Patience: 1/200
+Step 0757 | Loss = 6.352197 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0759 | Loss = 6.316024 | LR = 0.012500 | Correct: 45/52 | New best loss! (patience reset)
+Step 0760 | Loss = 9.571157 | LR = 0.012500 | Correct: 48/52 | Patience: 1/200
+Step 0768 | Loss = 6.307604 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0770 | Loss = 9.565855 | LR = 0.012500 | Correct: 48/52 | Patience: 2/200
+Step 0774 | Loss = 6.295749 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0780 | Loss = 8.040858 | LR = 0.012500 | Correct: 48/52 | Patience: 6/200
+Step 0782 | Loss = 6.290840 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0784 | Loss = 6.281591 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0787 | Loss = 6.281429 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0790 | Loss = 8.033472 | LR = 0.012500 | Correct: 48/52 | Patience: 3/200
+Step 0792 | Loss = 6.275211 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0794 | Loss = 6.256188 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0800 | Loss = 8.013885 | LR = 0.012500 | Correct: 48/52 | Patience: 6/200
+Step 0804 | Loss = 6.256077 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0807 | Loss = 6.251531 | LR = 0.012500 | Correct: 47/52 | New best loss! (patience reset)
+Step 0810 | Loss = 7.963092 | LR = 0.012500 | Correct: 48/52 | Patience: 3/200
+Step 0814 | Loss = 6.246624 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0820 | Loss = 7.964402 | LR = 0.012500 | Correct: 48/52 | Patience: 6/200
+Step 0822 | Loss = 6.221691 | LR = 0.012500 | Correct: 48/52 | New best loss! (patience reset)
+Step 0824 | Loss = 6.220237 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0830 | Loss = 7.945917 | LR = 0.012500 | Correct: 48/52 | Patience: 6/200
+Step 0834 | Loss = 6.195535 | LR = 0.012500 | Correct: 46/52 | New best loss! (patience reset)
+Step 0840 | Loss = 7.940818 | LR = 0.012500 | Correct: 48/52 | Patience: 6/200
+Step 0850 | Loss = 6.247130 | LR = 0.012500 | Correct: 46/52 | Patience: 16/200
+Step 0860 | Loss = 6.236795 | LR = 0.012500 | Correct: 46/52 | Patience: 26/200
+Step 0870 | Loss = 6.206834 | LR = 0.012500 | Correct: 46/52 | Patience: 36/200
+Step 0880 | Loss = 6.207600 | LR = 0.012500 | Correct: 48/52 | Patience: 46/200
+Step 0890 | Loss = 6.263427 | LR = 0.006250 | Correct: 48/52 | Patience: 56/200
+Step 0900 | Loss = 6.230741 | LR = 0.006250 | Correct: 47/52 | Patience: 66/200
+Step 0910 | Loss = 6.261743 | LR = 0.006250 | Correct: 47/52 | Patience: 76/200
+Step 0920 | Loss = 6.239598 | LR = 0.006250 | Correct: 48/52 | Patience: 86/200
+Step 0930 | Loss = 6.218166 | LR = 0.006250 | Correct: 48/52 | Patience: 96/200
+Step 0940 | Loss = 6.235985 | LR = 0.003125 | Correct: 48/52 | Patience: 106/200
+Step 0950 | Loss = 6.244696 | LR = 0.003125 | Correct: 48/52 | Patience: 116/200
+Step 0960 | Loss = 6.254159 | LR = 0.003125 | Correct: 48/52 | Patience: 126/200
+Step 0970 | Loss = 7.748536 | LR = 0.003125 | Correct: 48/52 | Patience: 136/200
+Step 0980 | Loss = 8.016292 | LR = 0.003125 | Correct: 47/52 | Patience: 146/200
+Step 0990 | Loss = 6.289839 | LR = 0.001563 | Correct: 48/52 | Patience: 156/200
+Step 1000 | Loss = 6.268924 | LR = 0.001563 | Correct: 48/52 | Patience: 166/200
+Step 1010 | Loss = 6.303545 | LR = 0.001563 | Correct: 48/52 | Patience: 176/200
+Step 1020 | Loss = 6.273870 | LR = 0.001563 | Correct: 48/52 | Patience: 186/200
+Step 1030 | Loss = 9.478579 | LR = 0.001563 | Correct: 48/52 | Patience: 196/200
+
+=== Early Stopping: Patience Exceeded ===
+Final Step: 1034
+Current Loss: 6.290998
+Best Loss: 6.195535 (at step 834)
+Best Accuracy at Best Loss: 46/52 (88.46%)
+Maximum Accuracy Achieved: 48/52 (92.31%) at step 460 (loss=12.223851)
+Training Time: 1084.69 seconds
+
+--- Prediction Accuracy Summary ---
+Total samples: 52
+Correct predictions: 48
+Accuracy: 92.31%
+
+--- Bit Difference Distribution ---
+Exactly correct (0 bits different): 48 samples (92.31%)
+1 bit different: 4 samples (7.69%)
+2 bits different: 0 samples (0.00%)
+3 bits different: 0 samples (0.00%)
+4 bits different: 0 samples (0.00%)
+5 bits different: 0 samples (0.00%)
+6 bits different: 0 samples (0.00%)
+7 bits different: 0 samples (0.00%)
+8 bits different: 0 samples (0.00%)
+
+--- Detailed Results ---
+Input: [1, 0, 0, 0, 0, 1, 0, 0], Expected: [0, 0, 1, 0, 0, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 1, 1, 1, 1, 0], Expected: [0, 1, 0, 0, 0, 1, 1, 0], Predicted: [0, 1, 0, 0, 0, 1, 1, 0]
+Input: [0, 1, 1, 0, 1, 0, 1, 0], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 1, 1, 0, 0]
+Input: [0, 1, 1, 0, 0, 1, 1, 1], Expected: [0, 0, 1, 0, 1, 0, 1, 0], Predicted: [0, 0, 1, 0, 1, 0, 1, 0]
+Input: [1, 1, 1, 0, 1, 0, 0, 0], Expected: [0, 1, 1, 1, 0, 0, 0, 0], Predicted: [0, 1, 1, 1, 0, 0, 0, 0]
+Input: [0, 1, 0, 1, 0, 1, 1, 1], Expected: [0, 0, 1, 0, 0, 0, 1, 1], Predicted: [0, 0, 1, 0, 0, 0, 1, 1]
+Input: [0, 1, 1, 1, 0, 1, 0, 0], Expected: [0, 0, 0, 1, 1, 1, 0, 0], Predicted: [0, 0, 0, 1, 1, 1, 0, 0]
+Input: [0, 0, 1, 0, 1, 1, 0, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 1, 1, 0, 0, 0]
+Input: [1, 1, 1, 0, 0, 1, 0, 0], Expected: [0, 0, 1, 1, 1, 0, 0, 0], Predicted: [0, 0, 1, 1, 1, 0, 0, 0]
+Input: [1, 0, 0, 0, 0, 1, 1, 1], Expected: [0, 0, 1, 1, 1, 0, 0, 0], Predicted: [0, 0, 1, 1, 1, 0, 0, 0]
+Input: [1, 1, 1, 0, 1, 0, 1, 1], Expected: [1, 0, 0, 1, 1, 0, 1, 0], Predicted: [1, 0, 0, 1, 1, 0, 1, 0]
+Input: [1, 1, 0, 1, 1, 0, 1, 0], Expected: [1, 0, 0, 0, 0, 0, 1, 0], Predicted: [1, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 1, 1, 1, 1, 0, 1, 0], Expected: [0, 1, 0, 0, 0, 1, 1, 0], Predicted: [0, 1, 0, 0, 0, 1, 1, 0]
+Input: [0, 1, 0, 1, 0, 0, 1, 1], Expected: [0, 0, 0, 0, 1, 1, 1, 1], Predicted: [0, 0, 0, 0, 1, 1, 1, 1]
+Input: [1, 0, 0, 1, 1, 1, 0, 1], Expected: [0, 1, 1, 1, 0, 1, 0, 1], Predicted: [0, 1, 1, 1, 0, 1, 0, 1]
+Input: [1, 0, 0, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 0, 0, 1, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 0, 1, 0, 1, 1, 1], Expected: [0, 0, 0, 0, 0, 1, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 1, 0, 0, 0, 0, 1, 1], Expected: [0, 0, 1, 0, 0, 1, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 0, 0]
+Input: [0, 1, 1, 1, 1, 0, 0, 0], Expected: [0, 0, 1, 1, 1, 0, 0, 0], Predicted: [0, 0, 1, 1, 1, 0, 0, 0]
+Input: [1, 1, 1, 0, 0, 0, 1, 1], Expected: [0, 0, 1, 0, 1, 0, 1, 0], Predicted: [0, 0, 1, 0, 1, 0, 1, 0]
+Input: [0, 1, 0, 1, 1, 1, 0, 1], Expected: [0, 1, 0, 0, 0, 0, 0, 1], Predicted: [0, 1, 0, 0, 0, 0, 0, 1]
+Input: [0, 0, 0, 0, 0, 1, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 1, 1, 0, 1, 1], Expected: [0, 0, 1, 1, 0, 1, 1, 1], Predicted: [0, 0, 1, 1, 0, 1, 1, 1]
+Input: [0, 0, 0, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 0, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 1, 1, 0, 1, 1], Expected: [0, 1, 1, 1, 1, 0, 0, 1], Predicted: [0, 1, 1, 1, 1, 0, 0, 1]
+Input: [0, 0, 0, 1, 1, 0, 1, 0], Expected: [0, 0, 0, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [1, 0, 1, 1, 0, 1, 1, 1], Expected: [0, 1, 0, 0, 1, 1, 0, 1], Predicted: [0, 1, 0, 0, 1, 1, 0, 1]
+Input: [1, 1, 0, 0, 1, 1, 1, 0], Expected: [1, 0, 1, 0, 1, 0, 0, 0], Predicted: [1, 0, 1, 0, 1, 0, 0, 0]
+Input: [1, 1, 0, 1, 0, 1, 1, 1], Expected: [0, 1, 0, 1, 1, 0, 1, 1], Predicted: [0, 1, 0, 1, 1, 0, 1, 1]
+Input: [1, 0, 0, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 1, 0, 1, 1, 0], Expected: [0, 1, 0, 0, 0, 0, 1, 0], Predicted: [0, 1, 0, 0, 0, 0, 1, 0]
+Input: [1, 0, 1, 0, 0, 1, 1, 0], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 1, 1, 0, 0]
+Input: [0, 0, 1, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 0, 1, 1, 0, 1, 0, 0], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 1, 1, 0, 0]
+Input: [1, 1, 0, 1, 1, 1, 0, 0], Expected: [1, 0, 0, 1, 1, 1, 0, 0], Predicted: [1, 0, 0, 1, 1, 1, 0, 0]
+Input: [1, 1, 0, 0, 1, 0, 0, 0], Expected: [0, 1, 1, 0, 0, 0, 0, 0], Predicted: [0, 1, 1, 0, 0, 0, 0, 0]
+Input: [0, 0, 0, 0, 0, 1, 1, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 1, 1, 1, 0, 0, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 1, 1, 0, 0, 0]
+Input: [0, 1, 1, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 1, 1, 0, 0]
+Input: [0, 0, 1, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 0, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 1, 0, 1], Predicted: [0, 0, 0, 0, 1, 1, 0, 1]
+Input: [0, 1, 1, 1, 0, 0, 1, 1], Expected: [0, 0, 0, 1, 0, 1, 0, 1], Predicted: [0, 0, 0, 1, 0, 1, 0, 1]
+Input: [0, 0, 1, 0, 0, 1, 1, 0], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 1, 1, 0, 0]
+Input: [0, 1, 0, 0, 1, 1, 1, 1], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 1, 1, 0, 0]
+Input: [0, 0, 1, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 0, 0, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 0, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [1, 1, 1, 1, 1, 1, 0, 0], Expected: [1, 0, 1, 1, 0, 1, 0, 0], Predicted: [1, 0, 1, 1, 0, 1, 0, 0]
+Input: [1, 0, 1, 0, 0, 0, 1, 1], Expected: [0, 0, 0, 1, 1, 1, 1, 0], Predicted: [0, 0, 0, 1, 1, 1, 1, 0]
+Input: [1, 0, 0, 1, 1, 0, 1, 1], Expected: [0, 1, 1, 0, 0, 0, 1, 1], Predicted: [0, 1, 1, 0, 0, 0, 1, 1]
+Input: [1, 1, 0, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 1, 1, 0, 0, 0]
+=== Training Session Completed ===
+
+=== Training Session Started ===
+Device: cuda
+Network Architecture: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 8]
+Number of Inputs: 8
+Learning Rate: 0.1 (initial)
+Training samples: 256
+Patience: 500
+Random_seed = 321Step 0000 | Loss = 49.469200 | LR = 0.100000 | Correct: 0/256 | New best loss! (patience reset)
+Step 0001 | Loss = 48.406677 | LR = 0.100000 | Correct: 3/256 | New best loss! (patience reset)
+Step 0002 | Loss = 47.589935 | LR = 0.100000 | Correct: 2/256 | New best loss! (patience reset)
+Step 0004 | Loss = 47.020416 | LR = 0.100000 | Correct: 18/256 | New best loss! (patience reset)
+Step 0005 | Loss = 46.827251 | LR = 0.100000 | Correct: 16/256 | New best loss! (patience reset)
+Step 0006 | Loss = 45.825768 | LR = 0.100000 | Correct: 17/256 | New best loss! (patience reset)
+Step 0007 | Loss = 45.586628 | LR = 0.100000 | Correct: 9/256 | New best loss! (patience reset)
+Step 0008 | Loss = 44.460049 | LR = 0.100000 | Correct: 8/256 | New best loss! (patience reset)
+Step 0010 | Loss = 44.376442 | LR = 0.100000 | Correct: 16/256 | New best loss! (patience reset)
+Step 0011 | Loss = 43.976749 | LR = 0.100000 | Correct: 14/256 | New best loss! (patience reset)
+Step 0012 | Loss = 43.216393 | LR = 0.100000 | Correct: 16/256 | New best loss! (patience reset)
+Step 0014 | Loss = 42.955421 | LR = 0.100000 | Correct: 17/256 | New best loss! (patience reset)
+Step 0016 | Loss = 42.450748 | LR = 0.100000 | Correct: 11/256 | New best loss! (patience reset)
+Step 0020 | Loss = 43.426464 | LR = 0.100000 | Correct: 15/256 | Patience: 4/500
+Step 0021 | Loss = 42.426674 | LR = 0.100000 | Correct: 17/256 | New best loss! (patience reset)
+Step 0027 | Loss = 42.348354 | LR = 0.100000 | Correct: 33/256 | New best loss! (patience reset)
+Step 0030 | Loss = 42.568073 | LR = 0.100000 | Correct: 30/256 | Patience: 3/500
+Step 0040 | Loss = 48.121738 | LR = 0.100000 | Correct: 29/256 | Patience: 13/500
+Step 0050 | Loss = 48.893692 | LR = 0.100000 | Correct: 24/256 | Patience: 23/500
+Step 0060 | Loss = 52.372112 | LR = 0.100000 | Correct: 14/256 | Patience: 33/500
+Step 0070 | Loss = 54.755013 | LR = 0.100000 | Correct: 24/256 | Patience: 43/500
+Step 0080 | Loss = 59.360386 | LR = 0.050000 | Correct: 24/256 | Patience: 53/500
+Step 0090 | Loss = 59.408436 | LR = 0.050000 | Correct: 42/256 | Patience: 63/500
+Step 0100 | Loss = 63.251293 | LR = 0.050000 | Correct: 37/256 | Patience: 73/500
+Step 0110 | Loss = 63.021446 | LR = 0.050000 | Correct: 36/256 | Patience: 83/500
+Step 0120 | Loss = 62.289852 | LR = 0.050000 | Correct: 35/256 | Patience: 93/500
+Step 0130 | Loss = 58.939610 | LR = 0.025000 | Correct: 45/256 | Patience: 103/500
+Step 0140 | Loss = 57.489334 | LR = 0.025000 | Correct: 40/256 | Patience: 113/500
+Step 0150 | Loss = 60.060741 | LR = 0.025000 | Correct: 51/256 | Patience: 123/500
+Step 0160 | Loss = 59.241558 | LR = 0.025000 | Correct: 51/256 | Patience: 133/500
+Step 0170 | Loss = 58.545334 | LR = 0.025000 | Correct: 43/256 | Patience: 143/500
+Step 0180 | Loss = 60.595131 | LR = 0.012500 | Correct: 51/256 | Patience: 153/500
+Step 0190 | Loss = 58.645275 | LR = 0.012500 | Correct: 41/256 | Patience: 163/500
+Step 0200 | Loss = 60.156734 | LR = 0.012500 | Correct: 49/256 | Patience: 173/500
+Step 0210 | Loss = 59.627617 | LR = 0.012500 | Correct: 58/256 | Patience: 183/500
+Step 0220 | Loss = 58.122208 | LR = 0.012500 | Correct: 73/256 | Patience: 193/500
+Step 0230 | Loss = 61.431137 | LR = 0.012500 | Correct: 62/256 | Patience: 203/500
+Step 0240 | Loss = 59.622608 | LR = 0.006250 | Correct: 61/256 | Patience: 213/500
+Step 0250 | Loss = 58.978798 | LR = 0.006250 | Correct: 62/256 | Patience: 223/500
+Step 0260 | Loss = 59.386944 | LR = 0.006250 | Correct: 59/256 | Patience: 233/500
+Step 0270 | Loss = 59.528801 | LR = 0.006250 | Correct: 61/256 | Patience: 243/500
+Step 0280 | Loss = 59.593613 | LR = 0.006250 | Correct: 55/256 | Patience: 253/500
+Step 0290 | Loss = 59.161926 | LR = 0.003125 | Correct: 56/256 | Patience: 263/500
+Step 0300 | Loss = 61.024857 | LR = 0.003125 | Correct: 61/256 | Patience: 273/500
+Step 0310 | Loss = 58.941845 | LR = 0.003125 | Correct: 61/256 | Patience: 283/500
+Step 0320 | Loss = 61.096928 | LR = 0.003125 | Correct: 55/256 | Patience: 293/500
+Step 0330 | Loss = 59.866646 | LR = 0.003125 | Correct: 55/256 | Patience: 303/500
+Step 0340 | Loss = 60.403736 | LR = 0.001563 | Correct: 61/256 | Patience: 313/500
+Step 0350 | Loss = 61.395432 | LR = 0.001563 | Correct: 61/256 | Patience: 323/500
+Step 0360 | Loss = 61.039017 | LR = 0.001563 | Correct: 71/256 | Patience: 333/500
+Step 0370 | Loss = 62.577377 | LR = 0.001563 | Correct: 58/256 | Patience: 343/500
+Step 0380 | Loss = 64.083450 | LR = 0.001563 | Correct: 62/256 | Patience: 353/500
+Step 0390 | Loss = 63.503056 | LR = 0.000781 | Correct: 62/256 | Patience: 363/500
+Step 0400 | Loss = 63.525875 | LR = 0.000781 | Correct: 58/256 | Patience: 373/500
+Step 0410 | Loss = 61.690315 | LR = 0.000781 | Correct: 64/256 | Patience: 383/500
+Step 0420 | Loss = 60.670830 | LR = 0.000781 | Correct: 58/256 | Patience: 393/500
+Step 0430 | Loss = 61.744709 | LR = 0.000781 | Correct: 62/256 | Patience: 403/500
+Step 0440 | Loss = 63.712387 | LR = 0.000391 | Correct: 58/256 | Patience: 413/500
+Step 0450 | Loss = 61.700771 | LR = 0.000391 | Correct: 64/256 | Patience: 423/500
+Step 0460 | Loss = 62.007275 | LR = 0.000391 | Correct: 64/256 | Patience: 433/500
+Step 0470 | Loss = 62.779503 | LR = 0.000391 | Correct: 74/256 | Patience: 443/500
+Step 0480 | Loss = 61.027760 | LR = 0.000391 | Correct: 58/256 | Patience: 453/500
+Step 0490 | Loss = 61.053581 | LR = 0.000195 | Correct: 64/256 | Patience: 463/500
+Step 0500 | Loss = 61.528175 | LR = 0.000195 | Correct: 57/256 | Patience: 473/500
+Step 0510 | Loss = 61.095482 | LR = 0.000195 | Correct: 58/256 | Patience: 483/500
+Step 0520 | Loss = 60.972546 | LR = 0.000195 | Correct: 64/256 | Patience: 493/500
+
+=== Early Stopping: Patience Exceeded ===
+Final Step: 0527
+Current Loss: 63.562481
+Best Loss: 42.348354 (at step 27)
+Best Accuracy at Best Loss: 33/256 (12.89%)
+Maximum Accuracy Achieved: 74/256 (28.91%) at step 203 (loss=60.141766)
+Training Time: 546.39 seconds
+
+--- Prediction Accuracy Summary ---
+Total samples: 256
+Correct predictions: 74
+Accuracy: 28.91%
+
+--- Bit Difference Distribution ---
+Exactly correct (0 bits different): 74 samples (28.91%)
+1 bit different: 72 samples (28.12%)
+2 bits different: 55 samples (21.48%)
+3 bits different: 27 samples (10.55%)
+4 bits different: 26 samples (10.16%)
+5 bits different: 2 samples (0.78%)
+6 bits different: 0 samples (0.00%)
+7 bits different: 0 samples (0.00%)
+8 bits different: 0 samples (0.00%)
+
+--- Detailed Results ---
+Input: [0, 1, 0, 1, 1, 1, 0, 0], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 1, 1, 0, 0]
+Input: [0, 0, 0, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 0, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 0, 1, 0, 0, 1, 0, 1], Expected: [0, 0, 0, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 0, 1, 1, 1, 0, 1, 0], Expected: [0, 0, 0, 1, 1, 1, 1, 0], Predicted: [0, 0, 0, 0, 1, 1, 1, 0]
+Input: [1, 0, 1, 0, 0, 0, 1, 1], Expected: [0, 0, 0, 1, 1, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 0, 1, 1, 1, 1, 1, 0], Expected: [0, 0, 1, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 1, 1, 1, 0]
+Input: [0, 0, 0, 1, 1, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 0, 0, 1], Predicted: [0, 0, 0, 0, 1, 0, 0, 1]
+Input: [1, 0, 0, 0, 0, 1, 1, 1], Expected: [0, 0, 1, 1, 1, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 1, 0]
+Input: [1, 1, 1, 0, 1, 1, 0, 1], Expected: [1, 0, 1, 1, 0, 1, 1, 0], Predicted: [1, 0, 1, 1, 0, 1, 1, 0]
+Input: [0, 1, 1, 1, 1, 0, 1, 0], Expected: [0, 1, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 1, 0, 1, 1, 1, 0]
+Input: [1, 1, 1, 1, 0, 1, 1, 0], Expected: [0, 1, 0, 1, 1, 0, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [1, 1, 0, 0, 0, 1, 1, 1], Expected: [0, 1, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [0, 0, 1, 0, 0, 1, 1, 1], Expected: [0, 0, 0, 0, 1, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 0, 0, 0, 0, 1, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [0, 0, 0, 1, 1, 0, 1, 1], Expected: [0, 0, 0, 0, 1, 0, 1, 1], Predicted: [0, 0, 0, 0, 1, 0, 1, 1]
+Input: [1, 0, 0, 0, 0, 0, 1, 1], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [1, 1, 1, 1, 0, 1, 1, 1], Expected: [0, 1, 1, 0, 1, 0, 0, 1], Predicted: [0, 0, 1, 0, 0, 1, 1, 1]
+Input: [0, 1, 1, 1, 0, 1, 1, 1], Expected: [0, 0, 1, 1, 0, 0, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 0, 1, 1, 1, 1, 1, 0], Expected: [1, 0, 0, 1, 1, 0, 1, 0], Predicted: [1, 0, 0, 1, 1, 1, 1, 0]
+Input: [1, 0, 0, 1, 0, 0, 1, 1], Expected: [0, 0, 0, 1, 1, 0, 1, 1], Predicted: [0, 0, 0, 0, 0, 0, 1, 1]
+Input: [1, 0, 1, 1, 0, 1, 0, 0], Expected: [0, 0, 1, 0, 1, 1, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 0, 0]
+Input: [0, 1, 1, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 1, 1, 0, 1, 0, 0, 0], Expected: [0, 0, 1, 1, 0, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 0, 0, 0]
+Input: [0, 0, 0, 1, 0, 1, 0, 1], Expected: [0, 0, 0, 0, 0, 1, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 0, 1]
+Input: [0, 0, 1, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 1, 1], Predicted: [0, 0, 0, 0, 0, 0, 1, 1]
+Input: [0, 0, 1, 0, 1, 0, 0, 1], Expected: [0, 0, 0, 1, 0, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 1, 0, 0, 0, 1, 0, 0], Expected: [0, 0, 0, 1, 0, 0, 0, 0], Predicted: [0, 0, 0, 1, 0, 0, 0, 0]
+Input: [1, 1, 0, 0, 0, 1, 0, 0], Expected: [0, 0, 1, 1, 0, 0, 0, 0], Predicted: [0, 0, 1, 1, 0, 0, 0, 0]
+Input: [1, 1, 1, 1, 0, 0, 1, 1], Expected: [0, 0, 1, 0, 1, 1, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 0, 0, 0, 0, 1, 1, 0], Expected: [0, 0, 1, 1, 0, 0, 0, 0], Predicted: [0, 0, 1, 1, 0, 0, 0, 0]
+Input: [0, 1, 1, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 1, 0, 1, 0, 1, 0], Expected: [0, 0, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 1, 1, 1, 0, 1, 0, 0], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 0, 0]
+Input: [0, 0, 1, 1, 0, 1, 1, 0], Expected: [0, 0, 0, 1, 0, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 1, 0, 1, 1, 1, 1, 0], Expected: [1, 0, 1, 1, 0, 1, 1, 0], Predicted: [1, 0, 1, 1, 1, 1, 1, 0]
+Input: [1, 0, 0, 1, 1, 0, 1, 1], Expected: [0, 1, 1, 0, 0, 0, 1, 1], Predicted: [0, 1, 0, 0, 1, 0, 1, 1]
+Input: [0, 1, 1, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 1, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 0, 1, 1, 1, 1, 0, 1], Expected: [1, 0, 0, 0, 1, 1, 1, 1], Predicted: [1, 0, 0, 0, 1, 1, 1, 1]
+Input: [0, 1, 0, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 1, 0, 1, 1, 1, 0], Expected: [0, 1, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 0, 0]
+Input: [0, 0, 1, 0, 1, 1, 1, 0], Expected: [0, 0, 0, 1, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [0, 1, 1, 1, 1, 1, 0, 0], Expected: [0, 1, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 1, 1, 1, 1, 0, 0]
+Input: [1, 1, 1, 1, 1, 0, 0, 0], Expected: [0, 1, 1, 1, 1, 0, 0, 0], Predicted: [0, 1, 1, 0, 1, 1, 0, 0]
+Input: [1, 0, 1, 0, 1, 0, 0, 1], Expected: [0, 1, 0, 1, 1, 0, 1, 0], Predicted: [0, 1, 0, 0, 0, 0, 1, 0]
+Input: [0, 1, 0, 1, 0, 1, 1, 1], Expected: [0, 0, 1, 0, 0, 0, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [0, 0, 0, 0, 1, 1, 1, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 1, 0, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 1, 1, 0, 1, 0, 1, 1], Expected: [0, 1, 0, 0, 0, 0, 1, 0], Predicted: [0, 0, 1, 0, 0, 1, 1, 0]
+Input: [1, 0, 1, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 1, 1, 0, 1, 1], Expected: [0, 1, 1, 1, 1, 0, 0, 1], Predicted: [0, 1, 0, 0, 1, 0, 1, 1]
+Input: [0, 1, 0, 1, 1, 0, 0, 0], Expected: [0, 0, 1, 0, 1, 0, 0, 0], Predicted: [0, 0, 1, 0, 1, 1, 0, 0]
+Input: [1, 1, 0, 0, 1, 1, 1, 1], Expected: [1, 0, 1, 1, 0, 1, 0, 0], Predicted: [1, 0, 1, 1, 0, 1, 1, 0]
+Input: [1, 0, 1, 1, 0, 0, 1, 1], Expected: [0, 0, 1, 0, 0, 0, 0, 1], Predicted: [0, 0, 0, 0, 0, 0, 1, 1]
+Input: [0, 0, 0, 0, 0, 1, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 0, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [0, 0, 1, 0, 1, 1, 0, 1], Expected: [0, 0, 0, 1, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 0, 0, 0, 1, 0, 0, 1], Expected: [0, 1, 0, 0, 1, 0, 0, 0], Predicted: [0, 1, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 1, 1, 0, 1, 0], Expected: [0, 0, 1, 1, 0, 0, 1, 0], Predicted: [0, 0, 1, 0, 1, 1, 1, 0]
+Input: [1, 1, 1, 1, 1, 0, 1, 0], Expected: [1, 0, 0, 1, 0, 1, 1, 0], Predicted: [1, 0, 1, 1, 1, 1, 1, 0]
+Input: [1, 0, 0, 1, 1, 1, 1, 0], Expected: [0, 1, 1, 1, 1, 1, 1, 0], Predicted: [0, 1, 1, 1, 1, 1, 1, 0]
+Input: [1, 1, 1, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 0, 1, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 0, 1, 1], Predicted: [0, 0, 0, 0, 0, 0, 1, 1]
+Input: [1, 0, 1, 1, 1, 1, 1, 1], Expected: [1, 0, 1, 0, 0, 1, 0, 1], Predicted: [1, 0, 0, 0, 1, 1, 1, 1]
+Input: [0, 1, 1, 1, 1, 1, 1, 0], Expected: [0, 1, 1, 0, 0, 0, 1, 0], Predicted: [0, 0, 1, 1, 1, 1, 1, 0]
+Input: [0, 1, 0, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 1, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 0, 1]
+Input: [1, 1, 0, 1, 0, 0, 1, 1], Expected: [0, 0, 1, 0, 0, 1, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 0, 1, 1, 1, 0, 0, 0], Expected: [0, 1, 0, 1, 1, 0, 0, 0], Predicted: [0, 1, 0, 0, 1, 0, 0, 0]
+Input: [0, 1, 1, 0, 1, 1, 0, 0], Expected: [0, 1, 0, 0, 1, 0, 0, 0], Predicted: [0, 0, 1, 1, 0, 0, 0, 0]
+Input: [0, 1, 1, 0, 1, 0, 0, 1], Expected: [0, 0, 1, 1, 0, 1, 1, 0], Predicted: [0, 0, 1, 0, 0, 1, 1, 0]
+Input: [0, 1, 0, 0, 1, 1, 0, 1], Expected: [0, 0, 1, 1, 0, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 0, 0]
+Input: [0, 1, 0, 0, 0, 1, 1, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 1, 0, 0, 0, 0]
+Input: [1, 0, 0, 0, 1, 1, 0, 1], Expected: [0, 1, 1, 0, 1, 0, 0, 0], Predicted: [0, 1, 1, 0, 0, 1, 0, 0]
+Input: [0, 0, 0, 1, 0, 0, 1, 1], Expected: [0, 0, 0, 0, 0, 0, 1, 1], Predicted: [0, 0, 0, 0, 0, 0, 1, 1]
+Input: [0, 1, 1, 1, 1, 1, 1, 1], Expected: [0, 1, 1, 0, 1, 0, 0, 1], Predicted: [0, 0, 1, 0, 1, 1, 1, 1]
+Input: [1, 1, 0, 0, 1, 1, 0, 1], Expected: [1, 0, 0, 1, 1, 1, 0, 0], Predicted: [1, 0, 1, 1, 0, 1, 0, 0]
+Input: [1, 1, 1, 0, 1, 0, 0, 0], Expected: [0, 1, 1, 1, 0, 0, 0, 0], Predicted: [0, 1, 1, 0, 0, 0, 0, 0]
+Input: [0, 1, 1, 0, 0, 1, 0, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 1, 0, 0, 0, 0]
+Input: [0, 0, 0, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 1, 0, 1, 1, 0], Expected: [0, 0, 0, 1, 1, 1, 1, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [1, 0, 1, 1, 0, 1, 1, 0], Expected: [0, 1, 0, 0, 0, 0, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [0, 1, 1, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 1, 1, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 0, 1, 0, 1, 1, 1, 1], Expected: [1, 0, 0, 1, 0, 1, 1, 0], Predicted: [1, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 1, 1, 0, 1, 1, 1, 1], Expected: [1, 1, 0, 1, 0, 0, 1, 0], Predicted: [1, 0, 1, 1, 0, 1, 1, 0]
+Input: [1, 0, 0, 1, 1, 1, 1, 1], Expected: [1, 0, 0, 0, 0, 1, 1, 1], Predicted: [1, 1, 1, 0, 1, 1, 1, 1]
+Input: [0, 1, 0, 1, 1, 1, 1, 0], Expected: [0, 1, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 1, 1, 1, 1, 1, 0]
+Input: [0, 1, 0, 0, 1, 0, 0, 1], Expected: [0, 0, 1, 0, 0, 1, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 0, 0]
+Input: [1, 1, 1, 1, 1, 0, 1, 1], Expected: [1, 0, 1, 0, 0, 1, 0, 1], Predicted: [1, 0, 1, 0, 1, 1, 1, 1]
+Input: [1, 1, 1, 0, 0, 1, 1, 0], Expected: [0, 1, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 0, 0]
+Input: [1, 0, 1, 0, 0, 1, 1, 1], Expected: [0, 1, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 1, 0, 0, 1, 1, 0]
+Input: [0, 1, 1, 0, 0, 1, 1, 0], Expected: [0, 0, 1, 0, 0, 1, 0, 0], Predicted: [0, 0, 0, 1, 0, 1, 0, 0]
+Input: [1, 0, 0, 1, 1, 0, 0, 1], Expected: [0, 1, 0, 1, 0, 0, 0, 1], Predicted: [0, 1, 0, 0, 1, 0, 0, 1]
+Input: [0, 0, 0, 0, 0, 1, 1, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 0, 1, 0, 1, 1, 0, 1], Expected: [1, 0, 0, 0, 0, 0, 1, 0], Predicted: [1, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 1, 1, 1, 0, 1, 0, 1], Expected: [0, 0, 1, 0, 0, 0, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 1, 1, 0, 1, 0, 1, 1], Expected: [1, 0, 0, 1, 1, 0, 1, 0], Predicted: [1, 0, 1, 0, 0, 1, 1, 0]
+Input: [0, 1, 0, 1, 1, 1, 1, 1], Expected: [0, 1, 0, 0, 1, 0, 1, 1], Predicted: [0, 0, 1, 0, 1, 1, 1, 1]
+Input: [0, 0, 1, 0, 0, 1, 0, 0], Expected: [0, 0, 0, 0, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 0, 1, 1, 1, 1, 1], Expected: [1, 1, 0, 0, 0, 0, 1, 1], Predicted: [1, 0, 1, 0, 1, 1, 1, 1]
+Input: [0, 1, 1, 1, 0, 0, 1, 1], Expected: [0, 0, 0, 1, 0, 1, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 1, 0, 0, 1, 1, 0, 0], Expected: [1, 0, 0, 1, 0, 0, 0, 0], Predicted: [1, 0, 1, 1, 0, 0, 0, 0]
+Input: [1, 1, 0, 1, 0, 1, 0, 0], Expected: [0, 0, 1, 1, 0, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 0, 0]
+Input: [1, 0, 0, 1, 1, 1, 0, 0], Expected: [0, 1, 1, 0, 1, 1, 0, 0], Predicted: [0, 1, 1, 0, 1, 1, 0, 0]
+Input: [1, 1, 1, 0, 0, 1, 0, 0], Expected: [0, 0, 1, 1, 1, 0, 0, 0], Predicted: [0, 0, 1, 1, 0, 0, 0, 0]
+Input: [0, 0, 1, 0, 1, 1, 1, 1], Expected: [0, 0, 0, 1, 1, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 1, 0, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 0, 1, 1, 0, 0], Expected: [0, 1, 1, 1, 1, 0, 0, 0], Predicted: [1, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 0, 1, 1, 1, 0], Expected: [1, 0, 0, 0, 1, 1, 0, 0], Predicted: [1, 0, 0, 1, 0, 1, 0, 0]
+Input: [1, 1, 0, 1, 0, 1, 0, 1], Expected: [0, 1, 0, 0, 0, 0, 0, 1], Predicted: [0, 0, 1, 0, 0, 1, 0, 1]
+Input: [0, 1, 0, 0, 1, 1, 1, 0], Expected: [0, 0, 1, 1, 1, 0, 0, 0], Predicted: [0, 0, 1, 1, 0, 0, 0, 0]
+Input: [1, 0, 0, 1, 1, 0, 1, 0], Expected: [0, 1, 0, 1, 1, 0, 1, 0], Predicted: [0, 1, 0, 1, 1, 0, 1, 0]
+Input: [1, 0, 0, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 1, 0, 0, 1, 0, 1], Expected: [0, 1, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [0, 0, 1, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 0, 0, 0, 1, 1, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 0, 0, 0, 1, 1], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 0, 1, 1, 1, 1, 0, 1], Expected: [0, 0, 1, 0, 0, 1, 1, 1], Predicted: [0, 0, 0, 0, 1, 1, 1, 1]
+Input: [0, 0, 0, 1, 1, 1, 0, 1], Expected: [0, 0, 0, 0, 1, 1, 0, 1], Predicted: [0, 0, 0, 0, 1, 1, 0, 1]
+Input: [1, 1, 1, 1, 1, 1, 0, 0], Expected: [1, 0, 1, 1, 0, 1, 0, 0], Predicted: [1, 0, 1, 1, 1, 1, 0, 0]
+Input: [0, 1, 0, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 0, 1, 0, 0, 1, 0, 1], Expected: [0, 0, 1, 1, 0, 0, 1, 0], Predicted: [0, 0, 1, 0, 0, 1, 1, 0]
+Input: [1, 0, 1, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 1, 1, 0, 0, 1, 0, 1], Expected: [0, 0, 0, 1, 1, 1, 1, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [1, 1, 1, 1, 0, 1, 0, 1], Expected: [0, 1, 0, 0, 1, 0, 1, 1], Predicted: [0, 0, 1, 0, 0, 1, 1, 1]
+Input: [0, 1, 0, 1, 0, 0, 1, 1], Expected: [0, 0, 0, 0, 1, 1, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [0, 0, 1, 1, 1, 1, 0, 0], Expected: [0, 0, 1, 0, 0, 1, 0, 0], Predicted: [0, 0, 0, 0, 1, 1, 0, 0]
+Input: [0, 0, 1, 1, 1, 0, 0, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 1, 0, 0, 0]
+Input: [0, 1, 1, 0, 0, 1, 1, 1], Expected: [0, 0, 1, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [0, 0, 1, 1, 1, 1, 1, 1], Expected: [0, 0, 1, 0, 1, 1, 0, 1], Predicted: [0, 0, 0, 0, 1, 1, 1, 1]
+Input: [1, 0, 0, 0, 0, 1, 0, 1], Expected: [0, 0, 1, 0, 1, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 0, 0]
+Input: [1, 1, 0, 0, 1, 0, 1, 1], Expected: [1, 0, 0, 0, 0, 1, 0, 0], Predicted: [1, 0, 1, 0, 0, 1, 1, 0]
+Input: [1, 0, 0, 0, 1, 0, 1, 1], Expected: [0, 1, 0, 1, 1, 0, 0, 0], Predicted: [0, 1, 0, 0, 0, 0, 1, 0]
+Input: [1, 1, 1, 0, 1, 1, 0, 0], Expected: [1, 0, 1, 0, 1, 0, 0, 0], Predicted: [1, 0, 1, 1, 0, 0, 0, 0]
+Input: [1, 0, 0, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 0, 0, 1, 0], Predicted: [0, 0, 0, 1, 0, 0, 1, 0]
+Input: [0, 0, 1, 0, 1, 0, 1, 1], Expected: [0, 0, 0, 1, 0, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [1, 1, 0, 1, 1, 0, 0, 0], Expected: [0, 1, 1, 0, 1, 0, 0, 0], Predicted: [0, 1, 1, 0, 1, 1, 0, 0]
+Input: [1, 1, 0, 0, 0, 1, 0, 1], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 0, 0]
+Input: [1, 1, 1, 0, 0, 0, 1, 1], Expected: [0, 0, 1, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 0, 0, 1, 0, 1, 1, 0], Expected: [0, 0, 1, 1, 0, 1, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [1, 1, 1, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 1, 1, 0, 0], Predicted: [0, 0, 0, 1, 0, 1, 0, 0]
+Input: [1, 1, 1, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 1, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 1, 1, 1, 1, 1, 1, 0], Expected: [1, 1, 0, 1, 0, 0, 1, 0], Predicted: [1, 0, 1, 1, 1, 1, 1, 0]
+Input: [1, 1, 0, 0, 0, 0, 1, 1], Expected: [0, 0, 1, 0, 0, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 0, 0, 1, 1, 1, 0, 1], Expected: [0, 1, 1, 1, 0, 1, 0, 1], Predicted: [0, 1, 1, 0, 1, 1, 0, 1]
+Input: [1, 1, 0, 0, 1, 1, 1, 0], Expected: [1, 0, 1, 0, 1, 0, 0, 0], Predicted: [1, 0, 1, 1, 0, 0, 0, 0]
+Input: [0, 1, 0, 1, 1, 0, 1, 1], Expected: [0, 0, 1, 1, 0, 1, 1, 1], Predicted: [0, 0, 1, 0, 1, 1, 1, 1]
+Input: [1, 1, 0, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 1, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 0, 1]
+Input: [1, 0, 1, 1, 1, 0, 0, 1], Expected: [0, 1, 1, 0, 0, 0, 1, 1], Predicted: [0, 1, 0, 0, 1, 0, 1, 1]
+Input: [1, 0, 0, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 0, 1, 1, 1, 0, 0], Expected: [1, 0, 0, 1, 1, 1, 0, 0], Predicted: [1, 0, 1, 1, 1, 1, 0, 0]
+Input: [0, 0, 1, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 1, 1, 1, 1, 1, 1, 1], Expected: [1, 1, 1, 0, 0, 0, 0, 1], Predicted: [1, 0, 1, 0, 1, 1, 1, 1]
+Input: [1, 0, 1, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 0, 1, 1, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [1, 1, 0, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 1, 0, 0, 0, 1, 1], Expected: [0, 0, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 1, 1, 1, 1, 0, 1, 1], Expected: [0, 1, 0, 0, 1, 1, 0, 1], Predicted: [0, 0, 1, 0, 1, 1, 1, 1]
+Input: [0, 1, 1, 1, 0, 1, 1, 0], Expected: [0, 0, 1, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [0, 0, 1, 0, 1, 0, 0, 0], Expected: [0, 0, 0, 1, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 0, 1, 0, 1, 0], Expected: [0, 1, 1, 0, 0, 1, 0, 0], Predicted: [0, 1, 0, 1, 0, 1, 0, 0]
+Input: [1, 0, 1, 0, 0, 1, 1, 0], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 0, 0]
+Input: [0, 0, 0, 0, 1, 0, 1, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [1, 1, 0, 0, 0, 1, 1, 0], Expected: [0, 1, 0, 0, 1, 0, 0, 0], Predicted: [0, 0, 1, 1, 0, 0, 0, 0]
+Input: [0, 1, 0, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 1, 0, 1, 1, 1, 0, 1], Expected: [1, 0, 1, 0, 1, 0, 0, 1], Predicted: [1, 0, 1, 0, 1, 1, 0, 1]
+Input: [1, 0, 0, 1, 0, 1, 0, 0], Expected: [0, 0, 1, 0, 0, 1, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 0, 0]
+Input: [0, 1, 1, 0, 1, 1, 0, 1], Expected: [0, 1, 0, 0, 1, 1, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [1, 0, 1, 0, 1, 0, 0, 0], Expected: [0, 1, 0, 1, 0, 0, 0, 0], Predicted: [0, 1, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 1, 1, 1, 1, 0, 1], Expected: [1, 1, 0, 0, 0, 0, 1, 1], Predicted: [1, 0, 1, 0, 1, 1, 1, 1]
+Input: [0, 1, 1, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 1, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 1, 0, 1, 0, 1, 1, 0], Expected: [0, 1, 0, 0, 1, 1, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [0, 1, 0, 0, 1, 1, 0, 0], Expected: [0, 0, 1, 1, 0, 0, 0, 0], Predicted: [0, 0, 1, 1, 0, 0, 0, 0]
+Input: [0, 0, 0, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 0, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 0, 0, 1], Predicted: [0, 0, 0, 0, 0, 0, 0, 1]
+Input: [0, 0, 0, 1, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 1], Predicted: [0, 0, 0, 0, 0, 0, 0, 1]
+Input: [0, 0, 0, 1, 1, 1, 1, 0], Expected: [0, 0, 0, 0, 1, 1, 1, 0], Predicted: [0, 0, 0, 0, 1, 1, 1, 0]
+Input: [1, 0, 0, 0, 1, 1, 1, 1], Expected: [0, 1, 1, 1, 1, 0, 0, 0], Predicted: [0, 1, 1, 0, 0, 1, 1, 0]
+Input: [1, 1, 0, 1, 1, 0, 1, 1], Expected: [1, 0, 0, 0, 1, 1, 1, 1], Predicted: [1, 0, 1, 0, 1, 1, 1, 1]
+Input: [0, 1, 1, 1, 0, 1, 0, 0], Expected: [0, 0, 0, 1, 1, 1, 0, 0], Predicted: [0, 0, 0, 1, 0, 1, 0, 0]
+Input: [1, 1, 0, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 1, 0, 0, 0, 0]
+Input: [0, 0, 1, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 0, 0, 1, 0, 1], Expected: [0, 0, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 0, 1, 0, 1, 0, 0]
+Input: [0, 1, 0, 1, 0, 1, 0, 1], Expected: [0, 0, 0, 1, 1, 0, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 0, 1]
+Input: [0, 1, 1, 1, 1, 0, 0, 0], Expected: [0, 0, 1, 1, 1, 0, 0, 0], Predicted: [0, 0, 1, 0, 1, 1, 0, 0]
+Input: [0, 1, 0, 0, 1, 0, 1, 1], Expected: [0, 0, 1, 0, 1, 1, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 1, 0]
+Input: [0, 0, 0, 1, 0, 1, 1, 0], Expected: [0, 0, 0, 0, 0, 1, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [0, 0, 0, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 1, 0, 0, 1, 1, 1], Expected: [0, 1, 1, 0, 0, 0, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [0, 0, 0, 1, 1, 0, 0, 0], Expected: [0, 0, 0, 0, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 1, 0, 0, 0]
+Input: [0, 0, 1, 1, 0, 0, 1, 1], Expected: [0, 0, 0, 0, 1, 0, 0, 1], Predicted: [0, 0, 0, 0, 0, 0, 1, 1]
+Input: [1, 1, 0, 0, 1, 0, 0, 1], Expected: [0, 1, 1, 0, 1, 1, 0, 0], Predicted: [0, 1, 1, 0, 0, 1, 0, 0]
+Input: [1, 1, 1, 0, 1, 1, 1, 0], Expected: [1, 1, 0, 0, 0, 1, 0, 0], Predicted: [1, 0, 1, 1, 0, 1, 0, 0]
+Input: [1, 1, 0, 1, 1, 0, 1, 0], Expected: [1, 0, 0, 0, 0, 0, 1, 0], Predicted: [1, 0, 1, 1, 1, 1, 1, 0]
+Input: [0, 0, 0, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 1, 0, 0, 0, 1, 1], Expected: [0, 0, 0, 1, 0, 0, 1, 0], Predicted: [0, 0, 0, 0, 0, 1, 1, 0]
+Input: [1, 0, 0, 1, 0, 1, 1, 1], Expected: [0, 0, 1, 1, 1, 1, 1, 1], Predicted: [0, 0, 1, 0, 0, 1, 1, 1]
+Input: [0, 0, 0, 0, 1, 0, 1, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 0, 0, 1, 1, 1, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 0, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 0, 0, 0, 0], Predicted: [0, 0, 0, 1, 0, 0, 0, 0]
+Input: [0, 0, 0, 0, 1, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 1, 1, 1, 0, 0, 1], Expected: [1, 0, 0, 0, 0, 1, 1, 1], Predicted: [1, 0, 1, 0, 1, 1, 1, 1]
+Input: [1, 1, 0, 0, 1, 0, 1, 0], Expected: [0, 1, 1, 1, 1, 0, 0, 0], Predicted: [1, 0, 1, 1, 0, 0, 0, 0]
+Input: [0, 0, 0, 0, 1, 1, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [0, 0, 1, 1, 1, 0, 1, 1], Expected: [0, 0, 1, 0, 0, 0, 0, 1], Predicted: [0, 0, 0, 0, 1, 0, 1, 1]
+Input: [0, 0, 1, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 0, 1, 1, 1, 0, 0], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 1, 1, 0, 0]
+Input: [1, 0, 0, 1, 0, 1, 0, 1], Expected: [0, 0, 1, 0, 1, 1, 0, 1], Predicted: [0, 0, 1, 0, 0, 1, 0, 1]
+Input: [1, 0, 0, 0, 0, 1, 0, 0], Expected: [0, 0, 1, 0, 0, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 0, 0, 0]
+Input: [0, 1, 1, 0, 1, 1, 1, 1], Expected: [0, 1, 0, 1, 1, 0, 1, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [1, 0, 1, 1, 1, 0, 1, 0], Expected: [0, 1, 1, 0, 1, 1, 1, 0], Predicted: [0, 1, 0, 1, 1, 1, 1, 0]
+Input: [0, 0, 1, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 0, 0, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 1, 0, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 1, 0, 1, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [0, 0, 0, 0, 0, 1, 1, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 0, 1, 1, 1, 1, 1], Expected: [0, 0, 0, 0, 1, 1, 1, 1], Predicted: [0, 0, 0, 0, 1, 1, 1, 1]
+Input: [1, 1, 0, 0, 1, 0, 0, 0], Expected: [0, 1, 1, 0, 0, 0, 0, 0], Predicted: [0, 1, 1, 0, 0, 0, 0, 0]
+Input: [1, 1, 1, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 0, 1, 1, 0, 1, 1, 1], Expected: [0, 0, 0, 1, 0, 1, 0, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [0, 0, 0, 1, 0, 1, 0, 0], Expected: [0, 0, 0, 0, 0, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [0, 1, 0, 1, 0, 1, 0, 0], Expected: [0, 0, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 0, 1, 0, 1, 0, 0]
+Input: [0, 0, 1, 1, 0, 1, 0, 1], Expected: [0, 0, 0, 0, 1, 1, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [1, 1, 0, 1, 1, 0, 0, 1], Expected: [0, 1, 1, 1, 0, 1, 0, 1], Predicted: [1, 0, 1, 0, 1, 1, 0, 1]
+Input: [1, 0, 0, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 1, 1, 1, 0, 0, 1], Expected: [0, 0, 1, 1, 1, 1, 1, 1], Predicted: [0, 0, 1, 0, 1, 1, 1, 1]
+Input: [1, 0, 0, 1, 1, 0, 0, 0], Expected: [0, 1, 0, 0, 1, 0, 0, 0], Predicted: [0, 1, 0, 0, 1, 0, 0, 0]
+Input: [0, 1, 0, 0, 1, 0, 1, 0], Expected: [0, 0, 1, 0, 1, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 0, 1, 1, 1, 1], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 1, 0, 1, 1, 0]
+Input: [0, 0, 0, 0, 0, 0, 1, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 1, 0]
+Input: [0, 0, 1, 0, 0, 1, 1, 0], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [0, 0, 0, 0, 1, 0, 0, 1], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 1, 1, 1, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 1, 1, 1, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [1, 0, 1, 1, 0, 1, 0, 1], Expected: [0, 0, 1, 1, 0, 1, 1, 1], Predicted: [0, 0, 1, 0, 0, 1, 1, 1]
+Input: [0, 1, 1, 0, 1, 0, 1, 0], Expected: [0, 0, 1, 1, 1, 1, 0, 0], Predicted: [0, 0, 1, 0, 0, 1, 0, 0]
+Input: [0, 1, 1, 1, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 1, 0, 0, 0, 0, 0, 1], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [0, 1, 1, 1, 1, 1, 0, 1], Expected: [0, 1, 0, 1, 1, 0, 1, 1], Predicted: [0, 0, 1, 0, 1, 1, 1, 1]
+Input: [0, 0, 0, 1, 0, 1, 1, 1], Expected: [0, 0, 0, 0, 0, 1, 1, 1], Predicted: [0, 0, 0, 0, 0, 1, 1, 1]
+Input: [0, 0, 1, 1, 1, 0, 0, 1], Expected: [0, 0, 0, 1, 1, 0, 1, 1], Predicted: [0, 0, 0, 0, 1, 0, 1, 1]
+Input: [1, 0, 0, 0, 1, 0, 0, 0], Expected: [0, 1, 0, 0, 0, 0, 0, 0], Predicted: [0, 1, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 0, 0, 0, 1, 0], Expected: [0, 0, 0, 1, 0, 1, 0, 0], Predicted: [0, 0, 0, 1, 0, 1, 0, 0]
+Input: [0, 1, 0, 0, 0, 1, 1, 1], Expected: [0, 0, 0, 1, 1, 1, 0, 0], Predicted: [0, 0, 0, 1, 0, 1, 1, 0]
+Input: [1, 0, 1, 1, 1, 1, 0, 0], Expected: [1, 0, 0, 0, 0, 1, 0, 0], Predicted: [1, 0, 0, 0, 1, 1, 0, 0]
+Input: [0, 0, 0, 1, 1, 0, 1, 0], Expected: [0, 0, 0, 0, 1, 0, 1, 0], Predicted: [0, 0, 0, 0, 1, 0, 1, 0]
+Input: [1, 0, 1, 1, 0, 1, 1, 1], Expected: [0, 1, 0, 0, 1, 1, 0, 1], Predicted: [0, 0, 1, 0, 0, 1, 1, 1]
+Input: [1, 1, 0, 1, 0, 1, 1, 1], Expected: [0, 1, 0, 1, 1, 0, 1, 1], Predicted: [0, 0, 1, 0, 0, 1, 1, 1]
+Input: [0, 0, 1, 1, 0, 1, 0, 0], Expected: [0, 0, 0, 0, 1, 1, 0, 0], Predicted: [0, 0, 0, 0, 0, 1, 0, 0]
+Input: [1, 0, 1, 0, 1, 0, 1, 1], Expected: [0, 1, 1, 0, 1, 1, 1, 0], Predicted: [0, 1, 0, 0, 0, 0, 1, 0]
+Input: [1, 1, 1, 0, 1, 0, 1, 0], Expected: [1, 0, 0, 0, 1, 1, 0, 0], Predicted: [1, 0, 1, 1, 0, 1, 0, 0]
+Input: [0, 1, 0, 1, 1, 1, 0, 1], Expected: [0, 1, 0, 0, 0, 0, 0, 1], Predicted: [0, 0, 1, 0, 1, 1, 0, 1]
+Input: [0, 1, 0, 0, 1, 0, 0, 0], Expected: [0, 0, 1, 0, 0, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 0, 0, 0]
+Input: [1, 0, 0, 0, 1, 1, 1, 0], Expected: [0, 1, 1, 1, 0, 0, 0, 0], Predicted: [0, 1, 1, 1, 0, 0, 0, 0]
+Input: [0, 0, 1, 0, 1, 1, 0, 0], Expected: [0, 0, 0, 1, 1, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [1, 0, 0, 0, 1, 1, 0, 0], Expected: [0, 1, 1, 0, 0, 0, 0, 0], Predicted: [0, 1, 1, 0, 0, 0, 0, 0]
+Input: [1, 0, 1, 0, 0, 0, 0, 0], Expected: [0, 0, 0, 0, 0, 0, 0, 0], Predicted: [0, 0, 0, 0, 0, 0, 0, 0]
+Input: [0, 1, 0, 1, 1, 0, 0, 1], Expected: [0, 0, 1, 0, 1, 1, 0, 1], Predicted: [0, 0, 1, 0, 1, 1, 0, 1]
+Input: [1, 0, 0, 0, 1, 0, 1, 0], Expected: [0, 1, 0, 1, 0, 0, 0, 0], Predicted: [0, 1, 0, 1, 0, 0, 0, 0]
+Input: [1, 0, 1, 0, 0, 1, 0, 0], Expected: [0, 0, 1, 0, 1, 0, 0, 0], Predicted: [0, 0, 1, 0, 0, 0, 0, 0]
+Input: [1, 1, 1, 0, 1, 0, 0, 1], Expected: [0, 1, 1, 1, 1, 1, 1, 0], Predicted: [0, 1, 1, 0, 0, 1, 1, 0]
+=== Training Session Completed ===
